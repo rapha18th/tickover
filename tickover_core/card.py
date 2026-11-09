@@ -101,3 +101,107 @@ def render(path: str, *, machine: str, verdict: str, z: float, mel: np.ndarray, 
            font=_font(15), fill=MUTED)
     img.save(path)
     return path
+
+
+def _header(d, title: str, word: str, col, sub: str) -> None:
+    d.text((48, 36), "TICKOVER", font=_font(18, True), fill=MUTED)
+    d.text((48, 62), title[:44], font=_font(40, True), fill=INK)
+    pw = d.textlength(word, font=_font(22, True)) + 36
+    d.rounded_rectangle((W - 48 - pw, 50, W - 48, 94), radius=22, fill=col)
+    d.text((W - 48 - pw + 18, 59), word, font=_font(22, True), fill=(255, 255, 255))
+    d.text((48, 112), sub[:100], font=_font(22), fill=INK)
+
+
+def _spec_pair(mels: list[np.ndarray]) -> list[np.ndarray]:
+    """Grey spectrograms on one shared scale, so a quiet window looks quiet next to a loud one."""
+    allv = np.concatenate([m.ravel() for m in mels])
+    lo, hi = np.percentile(allv, 5), np.percentile(allv, 99.5)
+    return [(235 - 190 * np.clip((m.T[::-1] - lo) / (hi - lo + 1e-9), 0, 1)).astype(np.uint8) for m in mels]
+
+
+def hear_card(path: str, *, tags: list[dict], quality: dict, mel: np.ndarray, seconds: float) -> str:
+    """What a clip sounds like, and whether it is clean enough to judge a machine by."""
+    img = Image.new("RGB", (W, H), BG)
+    d = ImageDraw.Draw(img)
+    ok = quality.get("ok", True)
+    col, word = (VERDICT["healthy"][0], "CLEAN CLIP") if ok else (VERDICT["watch"][0], "RETAKE")
+    top = ", ".join(t["label"].lower() for t in tags[:2]) or "nothing clear"
+    _header(d, "What I hear", word, col, f"Sounds like {top}" if ok else quality.get("fix", "Record again."))
+    x0, y0, sw, sh = 48, 160, 700, 330
+    img.paste(Image.fromarray(_gray_spec(mel)).resize((sw, sh), Image.BILINEAR).convert("RGB"), (x0, y0))
+    d.rectangle((x0, y0, x0 + sw, y0 + sh), outline=RULE, width=1)
+    d.text((x0, y0 + sh + 8), f"time →   {min(seconds, 30):.0f} s shown", font=_font(16), fill=MUTED)
+    d.text((x0 - 40, y0 - 2), "8 kHz", font=_font(13), fill=MUTED)
+    d.text((x0 - 16, y0 + sh - 14), "0", font=_font(13), fill=MUTED)
+    bx = x0 + sw + 40
+    d.text((bx, y0 - 2), "Sounds like", font=_font(20, True), fill=INK)
+    bw = W - 48 - bx - 60
+    for i, t in enumerate(tags[:5]):
+        yy = y0 + 40 + i * 58
+        d.text((bx, yy), t["label"][:34], font=_font(17), fill=INK)
+        d.rounded_rectangle((bx, yy + 26, bx + bw, yy + 40), radius=7, fill=RULE)
+        d.rounded_rectangle((bx, yy + 26, bx + max(14, int(bw * min(1.0, t["score"]))), yy + 40), radius=7, fill=(82, 82, 91))
+        d.text((bx + bw + 10, yy + 22), f"{t['score']:.2f}", font=_font(16, True), fill=INK)
+    # quality row
+    qy = y0 + sh + 52
+    bad = set(quality.get("reasons", []))
+    cells = [("Length", f"{quality.get('seconds', seconds):.0f} s", "too_short" in bad),
+             ("Level", f"{quality.get('level_dbfs', 0):.0f} dBFS", "too_quiet" in bad),
+             ("Clipping", f"{quality.get('clipping_pct', 0):.1f} %", "clipping" in bad),
+             ("Silence", f"{quality.get('silence_pct', 0):.0f} %", "silence" in bad),
+             ("Speech", f"{quality.get('speech', 0):.2f}", "speech" in bad),
+             ("Wind", f"{quality.get('wind', 0):.2f}", "wind" in bad)]
+    cw = (W - 96) / len(cells)
+    for i, (k, v, flag) in enumerate(cells):
+        cx = 48 + i * cw
+        d.text((cx, qy), k, font=_font(15), fill=MUTED)
+        d.text((cx, qy + 20), v, font=_font(20, True), fill=VERDICT["drift"][0] if flag else INK)
+    d.line((48, H - 52, W - 48, H - 52), fill=RULE)
+    d.text((48, H - 40), "Tags from a general audio model: context, never a diagnosis   ·   Local, on-device",
+           font=_font(15), fill=MUTED)
+    img.save(path)
+    return path
+
+
+VERIFY = {"confirmed": ((22, 163, 74), "CONFIRMED"), "no_change": ((220, 38, 38), "NO CHANGE"),
+          "other_change": ((217, 119, 6), "DIFFERENT CHANGE"), "retake": ((217, 119, 6), "RETAKE")}
+
+
+def verify_card(path: str, *, label: str, verdict: str, line: str, mel_before: np.ndarray, mel_after: np.ndarray,
+                sec_before: float, sec_after: float, tone: float, tone_line: float, level_delta: float,
+                level_sigma: float, level_line: float,
+                appeared: list[str], faded: list[str], baseline: str | None = None) -> str:
+    """Before and after, side by side on one scale: did the sound change when the action ran?"""
+    img = Image.new("RGB", (W, H), BG)
+    d = ImageDraw.Draw(img)
+    col, word = VERIFY.get(verdict, VERIFY["other_change"])
+    _header(d, label or "Did it change?", word, col, line)
+    x0, y0, sh, gap = 48, 176, 300, 16
+    total = W - 96 - gap
+    wb = int(total * np.clip(sec_before / (sec_before + sec_after + 1e-9), 0.25, 0.75))
+    wa = total - wb
+    gb, ga = _spec_pair([mel_before, mel_after])
+    for g, x, w, name, secs in ((gb, x0, wb, "BEFORE", sec_before), (ga, x0 + wb + gap, wa, "AFTER", sec_after)):
+        img.paste(Image.fromarray(g).resize((w, sh), Image.BILINEAR).convert("RGB"), (x, y0))
+        d.rectangle((x, y0, x + w, y0 + sh), outline=col if name == "AFTER" and verdict == "confirmed" else RULE, width=2 if name == "AFTER" else 1)
+        d.text((x, y0 - 24), f"{name}   {secs:.0f} s", font=_font(16, True), fill=MUTED)
+    d.text((x0 - 40, y0 - 2), "8 kHz", font=_font(13), fill=MUTED)
+    d.text((x0 - 16, y0 + sh - 14), "0", font=_font(13), fill=MUTED)
+    qy = y0 + sh + 28
+    cells = [("Tone", f"{tone:+.1f} σ", f"line at {tone_line:.0f} σ"),
+             ("Level", f"{level_delta:+.0f} dB", f"{level_sigma:.1f} σ, line at {level_line:.0f} σ"),
+             ("Appeared", ", ".join(appeared[:2]) or "none", "sounds like"),
+             ("Faded", ", ".join(faded[:2]) or "none", "sounds like")]
+    if baseline:
+        cells.append(("Against its baseline", baseline, "after window"))
+    cw = (W - 96) / len(cells)
+    for i, (k, v, note) in enumerate(cells):
+        cx = 48 + i * cw
+        d.text((cx, qy), k, font=_font(15), fill=MUTED)
+        d.text((cx, qy + 20), v[:26], font=_font(20, True), fill=INK)
+        d.text((cx, qy + 48), note, font=_font(13), fill=MUTED)
+    d.line((48, H - 52, W - 48, H - 52), fill=RULE)
+    d.text((48, H - 40), "Tone and level are measured against each window's own variation   ·   Local, on-device",
+           font=_font(15), fill=MUTED)
+    img.save(path)
+    return path

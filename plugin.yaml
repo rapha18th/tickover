@@ -1,13 +1,13 @@
 name: tickover
-version: "0.2.0"
+version: "0.3.0"
 description: >-
-  A listening routine for machines with no sensors. Hermes learns a generator,
-  borehole pump, compressor, fan or old car from a few healthy recordings, asks
-  its owner every week on Telegram or WhatsApp for a 10-second voice note,
-  checks it against that machine's own normal, tracks the drift trend, forecasts
-  when it crosses the alert line, and sends a fleet card. Frozen CED and
-  EfficientAT encoders in onnxruntime, few-shot, local.
-  Tickover is what mechanics call an engine at idle.
+  Ears for Hermes. Hermes can switch things on; now it can hear whether they
+  started. Hear any recording and say what it sounds like. Verify an action by
+  sound: before, act, after. Remember a machine from a few healthy recordings
+  and catch it drifting, from a weekly voice note or an unattended microphone,
+  with a trend, a forecast and a fleet card. Teach it new questions in the
+  owner's words. Frozen CED and EfficientAT encoders in onnxruntime, few-shot,
+  local, no keys. Tickover is what mechanics call an engine at idle.
 author: rapha18th
 license: MIT
 homepage: https://github.com/rapha18th/tickover
@@ -16,17 +16,23 @@ tags:
   - predictive-maintenance
   - anomaly-detection
   - cron
+  - verification
+  - iot
   - skills
 manifest_version: 2
 api_version: 1
 requires_hermes: ">=0.23.0"
 provides_tools:
+  - tickover_hear
+  - tickover_verify
   - tickover_enroll
   - tickover_check
+  - tickover_teach
   - tickover_watch
   - tickover_checkin
   - tickover_fleet
   - tickover_listen
+  - tickover_selftest
 provides_hooks:
   - pre_gateway_dispatch
   - pre_llm_call
@@ -39,3 +45,4 @@ python_dependencies:
   - "onnx>=1.15,<2"
   - "soundfile>=0.12,<0.15"
   - "Pillow>=10.1,<14"
+  - "imageio-ffmpeg>=0.4.9,<1"

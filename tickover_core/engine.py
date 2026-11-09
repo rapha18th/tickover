@@ -21,7 +21,7 @@ Calibration: every healthy clip is scored against the others (leave one out). Ea
 score becomes robust sigmas (median / MAD) against that spread; drift is the mean
 of the three. No labels, no training. On DCASE 2024 robot, drone, motor, printer and
 compressor recordings with 10 healthy clips, the ensemble beats each part alone
-(bench/README.md).
+(scripts in bench/, numbers in the README).
 """
 from __future__ import annotations
 
@@ -29,13 +29,14 @@ import time
 
 import numpy as np
 
-from . import audio, encoder, store
+from . import audio, encoder, quality, store
 
 GAMMA = 10.0
 CED_LAYER = "L5"
 MIN_CLIPS = 3
 WATCH, DRIFT = 2.0, 3.0
 FLOOR = 0.15  # MAD floor as a fraction of the median: few-shot spreads are noisy
+LEVEL_SHIFT_DB = 8.0
 
 
 def _l2(x):
@@ -89,21 +90,42 @@ def _token_map(bank_tokens: np.ndarray, g: np.ndarray) -> np.ndarray:
 
 # ---------------------------------------------------------------- features
 def _features(x: np.ndarray) -> dict:
-    g = encoder.get().grid(x, CED_LAYER).astype(np.float32)
+    p, g = encoder.get().run(x, CED_LAYER)
+    g = g.astype(np.float32)
     f = encoder.get_mn10().frames(x).astype(np.float32)
-    return {"grid": g, "pools": _pools(g), "frames": f}
+    return {"grid": g, "pools": _pools(g), "frames": f, "probs": p}
 
 
-def _clips_from(paths: list[str]) -> tuple[list[np.ndarray], list[str]]:
-    out, skipped = [], []
-    for p in paths:
+def _usable(paths: list[str], ignore_quality: bool = False) -> tuple[list[dict], list[str]]:
+    """Recordings -> features of every 10 s segment that passes the quality gate.
+
+    A recording that is clipped, silent or too short is left out whole. A segment with speech or wind over it
+    is left out alone, so one remark in a minute of healthy sound costs ten seconds. Each feature dict carries
+    `src` (the index of its recording in `paths`) and `level` (dBFS).
+    """
+    F, skipped = [], []
+    for gi, p in enumerate(paths):
         try:
-            out += audio.segments(audio.load(p))
+            x = audio.load(p)
+            segs = audio.segments(x)
         except ValueError as exc:
             skipped.append(f"{p}: {exc}")
-    if not out:
+            continue
+        sig = quality.assess(x)
+        if not sig["ok"] and not ignore_quality:
+            skipped.append(f"{p}: {sig['fix']}")
+            continue
+        for seg in segs:
+            f = _features(seg)
+            why = None if ignore_quality else quality.segment_reason(f["probs"])
+            if why:
+                skipped.append(f"{p}: {quality.FIX[why]}")
+                continue
+            f["src"], f["level"] = gi, audio.level_db(seg)
+            F.append(f)
+    if not F:
         raise ValueError("no usable audio: " + "; ".join(skipped))
-    return out, skipped
+    return F, skipped
 
 
 def _bank_scores(F: list[dict], keep: list[int], q: dict) -> np.ndarray:
@@ -116,9 +138,8 @@ def _bank_scores(F: list[dict], keep: list[int], q: dict) -> np.ndarray:
 
 
 # ---------------------------------------------------------------- public API
-def enroll(machine: str, paths: list[str], append: bool = False) -> dict:
-    clips, skipped = _clips_from(paths)
-    F = [_features(c) for c in clips]
+def enroll(machine: str, paths: list[str], append: bool = False, ignore_quality: bool = False) -> dict:
+    F, skipped = _usable(paths, ignore_quality)
     if append:
         try:
             old, _ = store.load_bank(machine)
@@ -139,20 +160,47 @@ def enroll(machine: str, paths: list[str], append: bool = False) -> dict:
     store.save_bank(machine, _pack(F, (med, mad)), {**meta, "ready": True})
     return {"ok": True, "machine": machine, "ready": True, "n_clips": n, "skipped": skipped,
             "healthy_spread_sigma": round(float(np.max(np.abs(zl))), 2),
-            "message": f"Enrolled {n} healthy clips. Tickover now knows how '{machine}' sounds."}
+            "message": f"Enrolled {n} healthy clips. Tickover now knows how '{machine}' sounds."
+                       + (f" Left out {len(skipped)} that failed the quality gate." if skipped else "")}
 
 
-def check(machine: str, path: str, out_png: str | None = None, recorded_at: float | None = None) -> dict:
+def _retake(machine: str, q: dict) -> dict:
+    return {"ok": True, "machine": machine, "verdict": "retake", "quality": q, "logged": False,
+            "message": "Not scored and not logged. " + q["fix"],
+            "how_to_read": "retake is about the recording, never about the machine. Ask for a new recording; "
+                           "do not report any verdict on the machine from this one."}
+
+
+def score(machine: str, x: np.ndarray) -> dict:
+    """Drift of a waveform against a machine's baseline. Nothing is logged and no card is drawn."""
+    bank, meta = store.load_bank(machine)
+    if not meta.get("ready"):
+        return {"machine": meta["name"], "verdict": "insufficient"}
+    F = _unpack(bank)
+    zz = max(float(((_bank_scores(F, list(range(len(F))), _features(s)) - bank["cal_med"]) / bank["cal_mad"])[:3].mean())
+             for s in audio.segments(x))
+    return {"machine": meta["name"], "drift_sigma": round(zz, 2),
+            "verdict": "drift" if zz >= DRIFT else "watch" if zz >= WATCH else "healthy"}
+
+
+def check(machine: str, path: str, out_png: str | None = None, recorded_at: float | None = None,
+          ignore_quality: bool = False) -> dict:
     bank, meta = store.load_bank(machine)
     if not meta.get("ready"):
         return {"ok": True, "machine": machine, "verdict": "insufficient", "n_clips": meta["n_clips"],
                 "message": f"Baseline has {meta['n_clips']} clip(s); it needs {MIN_CLIPS}. Enroll more healthy sound first."}
     F = _unpack(bank)
     med, mad = bank["cal_med"], bank["cal_mad"]
-    segs = audio.segments(audio.load(path))
+    x = audio.load(path)
+    if len(x) < 2 * audio.SR:
+        return _retake(meta["name"], quality.assess(x))
+    segs = audio.segments(x)
+    Q = [_features(seg) for seg in segs]
+    ql = quality.assess(x, np.stack([q["probs"] for q in Q]))
+    if not ql["ok"] and not ignore_quality:
+        return _retake(meta["name"], ql)
     best = None
-    for seg in segs:
-        q = _features(seg)
+    for seg, q in zip(segs, Q):
         z = (_bank_scores(F, list(range(len(F))), q) - med) / mad
         zz = float(z[:3].mean())
         if best is None or zz > best[0]:
@@ -165,27 +213,54 @@ def check(machine: str, path: str, out_png: str | None = None, recorded_at: floa
     ref = bank["tok_ref"]
     amap = (tok - ref[0][:, None]) / (ref[1][:, None] - ref[0][:, None] + 1e-6) * 2.0
     band_z = np.quantile(amap, 0.9, axis=1)
-    hist = [h["z"] for h in reversed(store.last_checks(machine, 29))] + [zz]
+    past = store.last_checks(machine, 29)
+    # The same audio checked twice is one observation: it is not logged again and cannot confirm itself.
+    import hashlib
+    sig = f"{path}#{hashlib.sha1(np.ascontiguousarray(x).tobytes()).hexdigest()[:12]}"
+    repeat = bool(past and past[0].get("src") == sig)
+    hist = [h["z"] for h in reversed(past)] + ([] if repeat else [zz])
     png = out_png or str(store.machine_dir(machine) / f"check_{int(time.time() * 1000)}.png")
     from . import card
     card.render(png, machine=meta["name"], verdict=verdict, z=zz, mel=_logmel(seg), amap=np.clip(amap, 0, None),
                 band_labels=encoder.BAND_LABELS, band_z=[float(v) for v in band_z], history=hist,
                 n_enrolled=meta["n_clips"], enrolled_on=time.strftime("%d %b %Y", time.localtime(meta["enrolled_at"])),
                 encoder="CED-base + mn10")
-    store.log_check(machine, float(z[:3].mean()), zz, verdict, png, str(path), ts=recorded_at)
+    if not repeat:
+        store.log_check(machine, float(z[:3].mean()), zz, verdict, png, sig, ts=recorded_at)
     from . import trend as _trend
     prof = store.profile(machine)
     tr = _trend.analyse(store.history(machine), DRIFT, WATCH, every_days=prof.get("every_days"))
     top = int(np.argmax(band_z))
-    return {"ok": True, "machine": meta["name"], "verdict": verdict, "drift_sigma": round(zz, 2), "trend": tr,
-            "scores_sigma": {"ced_bands": round(float(z[0]), 2), "mn10_clip": round(float(z[1]), 2),
-                             "mn10_frames": round(float(z[2]), 2)},
-            "bands": {lab: round(float(v), 2) for lab, v in zip(encoder.BAND_LABELS, band_z)},
-            "most_changed_band": encoder.BAND_LABELS[top] if band_z[top] >= WATCH else None,
-            "segments_scored": len(segs), "card": png,
-            "how_to_read": "drift_sigma is robust sigmas from this machine's own healthy recordings. "
-                           "Under 2 is normal variation, 2-3 is worth watching, 3 and above is a real change. "
-                           "Tickover detects change. It does not name the fault."}
+    out = {"ok": True, "machine": meta["name"], "verdict": verdict, "drift_sigma": round(zz, 2), "trend": tr,
+           "scores_sigma": {"ced_bands": round(float(z[0]), 2), "mn10_clip": round(float(z[1]), 2),
+                            "mn10_frames": round(float(z[2]), 2)},
+           "bands": {lab: round(float(v), 2) for lab, v in zip(encoder.BAND_LABELS, band_z)},
+           "most_changed_band": encoder.BAND_LABELS[top] if band_z[top] >= WATCH else None,
+           "segments_scored": len(segs), "quality": ql, "card": png,
+           "how_to_read": "drift_sigma is robust sigmas from this machine's own healthy recordings. "
+                          "Under 2 is normal variation, 2-3 is worth watching, 3 and above is a real change. "
+                          "Tickover detects change. It does not name the fault."}
+    # Recording conditions: a clip far louder or quieter than every baseline clip was probably recorded from a
+    # different distance, which alone can read as drift. Advisory; banks from before 0.3 have no levels.
+    lv = bank["levels"] if "levels" in bank else None
+    if lv is not None and np.isfinite(lv).any():
+        lv = lv[np.isfinite(lv)]
+        now = audio.level_db(seg)
+        d = now - float(np.median(lv))
+        if abs(d) > LEVEL_SHIFT_DB and not (lv.min() - 3 <= now <= lv.max() + 3):
+            out["conditions"] = (f"This recording is {abs(d):.0f} dB {'louder' if d > 0 else 'quieter'} than the baseline "
+                                 "recordings. The phone was probably at a different distance. Ask for one more from the "
+                                 "usual spot before acting on this verdict.")
+    if repeat:
+        out["repeat"] = True
+        out["note"] = "This is the recording that was checked last time. It was not logged again."
+    if verdict == "drift":
+        earlier = past[1:] if repeat else past
+        out["confirmed"] = bool(earlier and earlier[0]["verdict"] == "drift")
+        if not out["confirmed"]:
+            out["confirm"] = ("First drift reading. Ask for a second recording now, from the same spot, and check it "
+                              "before telling the owner to act. Two in a row is a finding; one can be a bad recording.")
+    return out
 
 
 # ---------------------------------------------------------------- storage packing
@@ -194,7 +269,8 @@ def _pack(F: list[dict], cal) -> dict:
     lens_f = np.array([f["frames"].shape[0] for f in F])
     out = {"grids": np.concatenate([f["grid"] for f in F]).astype(np.float16), "lens_g": lens_g,
            "frames": np.concatenate([f["frames"] for f in F]).astype(np.float16), "lens_f": lens_f,
-           "pools": np.stack([f["pools"] for f in F]).astype(np.float32)}
+           "pools": np.stack([f["pools"] for f in F]).astype(np.float32),
+           "levels": np.array([f.get("level", np.nan) for f in F], np.float32)}
     if cal is not None:
         out["cal_med"], out["cal_mad"] = cal
         # healthy token-distance reference for the card's colour scale (leave one out)
@@ -210,7 +286,8 @@ def _pack(F: list[dict], cal) -> dict:
 def _unpack(bank: dict) -> list[dict]:
     G = np.split(bank["grids"].astype(np.float32), np.cumsum(bank["lens_g"])[:-1])
     Fr = np.split(bank["frames"].astype(np.float32), np.cumsum(bank["lens_f"])[:-1])
-    return [{"grid": g, "frames": f, "pools": p} for g, f, p in zip(G, Fr, bank["pools"])]
+    lv = bank["levels"] if "levels" in bank else np.full(len(G), np.nan, np.float32)
+    return [{"grid": g, "frames": f, "pools": p, "level": float(v)} for g, f, p, v in zip(G, Fr, bank["pools"], lv)]
 
 
 def _logmel(x: np.ndarray) -> np.ndarray:

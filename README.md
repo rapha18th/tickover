@@ -1,79 +1,149 @@
-# Earshot
+# Tickover
 
-**Hermes can hear when a machine changes.**
+**Hermes can switch things on. Now it can hear whether they started.**
 
-Robots, drones, printers, fans, pumps and engines announce trouble in sound first. Earshot gives Hermes that sense. Record a machine while it is healthy, a phone voice note is enough, and Earshot learns its sound. Every later recording gets a verdict: how far it sits from that machine's own normal, which frequency bands moved, and a card that shows where.
+An agent that acts on the physical world works blind. It flips a relay, runs a job, moves an arm, and trusts the return code. Tickover gives Hermes ears. It listens before and after an action and says whether the sound changed. It remembers how a machine sounds when healthy and says when that drifts. It runs on the computer Hermes runs on, with no keys and no cloud.
 
-![Earshot in Hermes Desktop: a drone's hover drifted](docs/screenshots/desktop-drone.png)
+![A verify card: the pump started](docs/screenshots/card-verify.png)
 
 ```
-You     [sends healthy recordings of the car at idle]
-Hermes  Enrolled 11 healthy clips. Earshot now knows how "Car engine" sounds.
-You     [a new recording]
-Hermes  DRIFT. 5.2 sigma from its healthy self, rising across every band, most in 3.9-8 kHz.
-        A broadband, rhythmic change at idle fits a misfire. Check plugs and coils first.
-        MEDIA:/.../check.png
+You     I switched the borehole pump on at the relay. This recording runs across the switch.
+Hermes  CONFIRMED. The sound got 11 dB louder at 6.1 s and the tone changed. The pump started.
+You     An hour later I switched it on again. Same microphone.
+Hermes  NO CHANGE. The level moved 0.4 dB. The action may not have reached the pump,
+        or the microphone cannot hear it. I would check the relay.
 ```
 
-## Tools
-
-| Tool | What it does |
-|---|---|
-| `earshot_enroll(machine, paths, append?)` | Learns a machine from 3+ healthy clips of about 10 s, or one recording of 30 s or more. |
-| `earshot_check(machine, path)` | Scores a recording against that machine. Returns `drift_sigma`, the bands that moved, and a PNG card. |
-| `earshot_listen(seconds, machine, then)` | Records from this computer's microphone, then enrolls or checks. For the fan in your PC, the printer on your desk, the robot on your bench. |
-| `earshot_status(machine?)` | Lists machines and their check history. |
-
-Accepted input: anything ffmpeg reads (Telegram and WhatsApp voice notes, m4a, mp4 video), plus WAV, FLAC and OGG through soundfile.
-
-A skill (`skills/earshot/SKILL.md`) teaches Hermes the flow and how to read a result.
+Tickover is what mechanics call an engine at idle.
 
 ## Install
 
 ```bash
-hermes plugins install rapha18th/earshot --enable
+hermes plugins install rapha18th/tickover --enable
 ```
 
-Optional microphone support: `pip install sounddevice`. Optional formats: install ffmpeg.
-
-Check it works, with synthetic machine sound and no recordings:
+Prove it works on your computer, with synthetic sound and no recordings:
 
 ```bash
-python -m earshot_core selftest
+python -m tickover_core selftest
 ```
 
-On chat platforms, voice notes go to speech-to-text by default. For machine sound, send the recording as a file, or set `stt.enabled: false` in the profile you use for Earshot.
+The first run downloads one 87 MB listening model. After that, nothing leaves the computer.
 
-## How it works
+Optional: `pip install sounddevice` to use this computer's microphone.
 
-Earshot follows the training-free systems at the top of the DCASE Task 2 challenge (machine anomalous sound detection, 2024 to 2026): frozen pretrained audio encoders, a memory bank of healthy sound, nearest-neighbour distance, and an ensemble across different encoders.
+On chat platforms, voice notes go to speech-to-text by default. For machine sound, send the recording as a file, or set `stt.enabled: false` in the profile you use for Tickover.
 
-1. **Two encoders.** CED-base, a ViT distilled on AudioSet (Apache-2.0, mispeech), turns each clip into a grid of tokens over time and four frequency bands. EfficientAT mn10, a MobileNetV3 distilled on AudioSet (MIT), adds per-frame embeddings. That is the encoder from Injini, our earlier on-device engine monitor. Both run in onnxruntime on CPU.
-2. **Three scores.**
-   - CED band bank: per band, mean pooling plus relative deviation pooling, which keeps a single click visible (Wilkinghoff et al., 2026). One nearest neighbour per band (BEAM, Saengthong et al., 2026).
-   - mn10 clip match: nearest healthy clip by cosine.
-   - mn10 frame match: the 90th percentile of each frame's distance to its nearest healthy frame.
-3. **Self-calibration.** Every healthy clip is scored against the others. Each score becomes robust sigmas (median and MAD) against that spread, and drift is their mean. The number reads the same for a drone and a diesel: how unusual this sound is for this machine.
-4. **Where it changed.** Each time-frequency token is matched against the healthy tokens of its band. That map colours the card and names the band that moved.
+## What Hermes can do with ears
 
-Thresholds: under 2 sigma reads healthy, 2 to 3 reads watch, 3 and above reads drift. A check takes about 0.6 s on a laptop CPU. Enrolling ten clips takes about 5 s.
+| The question | The tool | Setup |
+|---|---|---|
+| What is this sound? Is the recording usable? | `tickover_hear` | none |
+| I switched something. Did it happen? | `tickover_verify` | none |
+| Does this machine still sound like itself? | `tickover_enroll`, then `tickover_check` | 3 healthy recordings |
+| Keep an ear on it. | `tickover_watch`, `tickover_checkin` | a schedule |
+| How are all my machines? | `tickover_fleet` | none |
+| Loaded or idle? Dry or wet? | `tickover_teach` (experimental) | 5 recordings per state |
+| Listen now. | `tickover_listen` | a microphone |
+| Does it work here? | `tickover_selftest` | none |
+
+A skill (`skills/tickover/SKILL.md`) teaches Hermes when to reach for each tool and how to read the result.
+
+Input: WAV, FLAC, OGG and Opus voice notes, M4A, MP3, MP4 video, a folder or glob, or an `rtsp://` or `http://` stream. ffmpeg is bundled through `imageio-ffmpeg`.
+
+### Verify an action
+
+Three steps, around any tool that acts.
+
+1. `tickover_verify(step="before")` captures a few seconds.
+2. Hermes runs the action: a smart plug, a relay, a shell command, a robot move.
+3. `tickover_verify(step="after", expect="start")` captures again and compares.
+
+One recording with the action inside it works too: `step="clip"`.
+
+![Tickover in Hermes Desktop: the pump started](docs/screenshots/desktop-verify.png)
+
+The verdict is `confirmed`, `no_change`, `other_change` or `unclear`. It comes with the level change in dB, the tone change in sigmas of the sound's own variation, what appeared or faded, and a card. Verify needs no baseline and no enrollment.
+
+### Remember a machine
+
+Enroll three or more healthy recordings of about 10 seconds. A phone voice note is enough. Every later recording gets a verdict: how far it sits from that machine's own normal, which frequency band moved, and a card that shows where.
+
+A first `drift` is unconfirmed. Tickover asks for a second recording before it tells anyone to act. A bad recording gets `retake` with the fix, and nothing is scored.
+
+### Keep an ear on it
+
+`tickover_watch` puts a machine on a Hermes cron schedule.
+
+- **With a person.** Hermes asks for a recording on schedule. The next voice note is checked, and the reply carries the trend and a forecast.
+- **Unattended.** Give the watch a `source`: a camera stream, or a file that a recorder keeps fresh. Hermes checks it alone and speaks only when the sound changed. If the recorder stops writing, Hermes says the microphone needs attention.
+
+`examples/unattended/record_to_inbox.py` turns a Raspberry Pi with a USB microphone into that recorder. A phone works the same way: any recorder app that saves into a synced folder is a source.
+
+`tickover_fleet` answers "how are my machines?" with one card.
+
+### Extend it without code
+
+Hermes is an agent, so the plugin grows by conversation.
+
+- A new machine: enroll it.
+- A new question: teach it.
+- A new source: any path or stream URL.
+- A new reaction: a cron job or a skill that reads `verdict` and `trend.escalate` and calls any other tool.
 
 ## Benchmarks
 
-Few-shot: the machine is enrolled from k healthy clips, then scored on labelled test recordings. Five random enrollments per setting. Scripts in `bench/`.
+Every number below comes from a script in `bench/` and public recordings. Results are in `bench/*.json`.
 
-**DCASE 2024 Task 2 evaluation set, embodiment machines.** Robot arm, hovering drone, brushless motor, 3D printer and air compressor. Matched condition (source domain), 100 test clips per machine, half anomalous. These anomalies are subtle by design. With the full 990-clip training sets, the 2024 challenge field reached official scores near 0.62.
+### Verify
+
+20 trials per case. Machine sound is from DCASE 2020 pump and fan recordings. Room tone is synthetic pink noise at -50 dBFS. Starts and stops are spliced from those two, so real rooms will be harder.
+
+| Case | Before and after | One clip |
+|---|---|---|
+| Room tone to pump, confirmed | 20/20 | 20/20 |
+| Pump to room tone, confirmed | 20/20 | 20/20 |
+| Room tone to fan, confirmed | 20/20 | 20/20 |
+| Fan to room tone, confirmed | 20/20 | 20/20 |
+| A second machine starts beside a running fan, confirmed | 17/20 | 16/20 |
+| A second machine stops beside a running fan, confirmed | 17/20 | 16/20 |
+| **Nothing switched, room tone. False change** | **0/20** | **0/60** |
+| Nothing switched, pump running. False change | 0/20 | 0/20 |
+| Nothing switched, fan running. False change | 1/20 | 1/20 |
+
+Limits, measured:
+
+- **Use one microphone in one place.** Two different recordings of the same pump in the same state read as a change 2 times in 20. For the fan, 7 in 20. Before and after must come from the same session.
+- **Verify does not find faults.** A normal pump against an abnormal pump reads as a change 2 or 3 times in 12. That job belongs to `tickover_check`.
+- **Leave room around the action.** A clip needs 9 seconds, with 4 seconds on each side of the change. A change closer to the edge returns `unclear`.
+- Verify hears that the sound changed. It does not prove what changed.
+
+### Drift
+
+Few-shot: the machine is enrolled from k healthy clips, then scored on labelled test recordings.
+
+**Car engines, phone recordings.** 83 healthy and 238 faulty clips from seven car models (HF `RashmiKarunarathne/MyDataSet`). Enrollment uses healthy clips from any car, so these numbers understate a single-machine baseline.
+
+| Fault | k=3 | k=5 | k=10 |
+|---|---|---|---|
+| Belt | 0.965 | 0.960 | **0.980** |
+| Tappet | 0.764 | 0.810 | **0.870** |
+| Misfire | 0.700 | 0.770 | **0.810** |
+
+AUC, ten enrollments per setting. The cross-car baseline raises false alarms: 7% at k=10, 19% at k=3. Enroll your own machine with ten clips or more.
+
+**DCASE 2024 Task 2 evaluation set.** Robot arm, hovering drone, brushless motor, 3D printer and air compressor. Matched condition, 100 test clips per machine, half anomalous. These anomalies are subtle by design. With the full 990-clip training sets, the 2024 challenge field reached official scores near 0.62.
 
 | System | k=3 | k=5 | k=10 | false drift at 3σ, k=10 |
 |---|---|---|---|---|
-| **Earshot (ensemble)** | **0.560** | **0.562** | **0.586** | 2.4% |
+| **Tickover (ensemble)** | **0.560** | **0.562** | **0.586** | 2.4% |
 | CED band bank alone | 0.503 | 0.549 | 0.558 | 2.5% |
-| mn10 clip match (Injini) | 0.543 | 0.526 | 0.564 | 7.7% |
+| mn10 clip match | 0.543 | 0.526 | 0.564 | 7.7% |
 | mn10 frame match | 0.558 | 0.553 | 0.572 | 2.1% |
 
-Mean AUC. At k=10, Earshot reaches 0.703 on the 3D printer, 0.677 on the drone and 0.563 on the robot arm.
+Mean AUC, five enrollments per setting.
 
-**Same machine, same condition.** The DCASE labels record each test clip's machine and operating condition (drone id, speed, microphone, motor load, printer model). Grouping by those labels gives the setting Earshot is built for: enroll k normal clips of one machine in one condition, then score its other normals and its anomalies.
+**Same machine, same condition.** Grouping the DCASE test clips by machine id and operating condition gives the setting Tickover is built for.
 
 | Machine | k=3 | k=5 |
 |---|---|---|
@@ -84,31 +154,49 @@ Mean AUC. At k=10, Earshot reaches 0.703 on the 3D printer, 0.677 on the drone a
 | Air compressor | 0.510 | 0.500 |
 | **All** | 0.548 | **0.597** |
 
-Mean AUC over condition groups, five enrollments each.
+Tickover is strong on loud, obvious change: a belt, a misfire, a machine that stopped. It is weak on the subtle factory anomalies DCASE designs. Read the tables before you rely on it.
 
-**Car engines, phone recordings.** 83 healthy and 238 faulty clips from seven car models (HF `RashmiKarunarathne/MyDataSet`). Enrollment uses healthy clips from any car, so these numbers understate a real single-machine baseline.
+### Teach (experimental)
 
-| Fault | Earshot k=3 | k=5 | k=10 | mn10 alone, k=10 |
+`tickover_teach` learns named states from a few recordings. It tests itself by holding out one recording at a time, and it switches on only when the result could not be luck. Mostly it stays off.
+
+Ten random draws per question, scored on recordings it never saw:
+
+| Question | Recordings per state | Switched on | Right when on | Wrong label when on |
 |---|---|---|---|---|
-| Belt | 0.965 | 0.960 | **0.980** | 0.960 |
-| Tappet | 0.764 | 0.810 | **0.870** | 0.809 |
-| Misfire | 0.700 | 0.770 | **0.810** | 0.793 |
+| Any question | 3 | 0 of 90 draws | | |
+| Drone speed, 2 states | 5 | 5 of 10 | 70 of 80 | 0 |
+| Pump or fan | 5 | 2 of 10 | 26 of 32 | 3 |
+| Car engine fault, 4 states | 5 | 2 of 10 | 44 of 64 | 1 |
+| 3D printer, robot arm, compressor, pump fault, fan fault | 5 | 0 of 10 each | | |
 
-AUC, ten enrollments per setting. The cross-car baseline raises false alarms: 7% at k=10, 19% at k=3. Enroll your own machine with ten clips or more.
+The answers that are neither right nor wrong are `uncertain` or `unknown`. These runs predate a stricter per-state gate that is now in the code, so today it switches on less often. Treat teach as a preview.
+
+## How it works
+
+Tickover follows the training-free systems at the top of the DCASE Task 2 challenge: frozen pretrained audio encoders, a memory bank of healthy sound, nearest-neighbour distance, and an ensemble.
+
+1. **Two encoders.** CED-base, a ViT distilled on AudioSet (Apache-2.0, mispeech), turns each clip into a grid of tokens over time and four frequency bands. EfficientAT mn10, a MobileNetV3 distilled on AudioSet (MIT), adds per-frame embeddings. Both run in onnxruntime on CPU.
+2. **Three scores.** A CED band bank with mean pooling and relative deviation pooling. An mn10 clip match by cosine. An mn10 frame match at the 90th percentile, so brief events count.
+3. **Self-calibration.** Every healthy clip is scored against the others. Each score becomes robust sigmas (median and MAD) against that spread, and drift is their mean. Under 2 sigma reads healthy. 2 to 3 reads watch. 3 and above reads drift.
+4. **Verify.** The same embeddings, compared between two windows instead of against a baseline. Level and tone each move in sigmas of the windows' own variation. In one clip, a search finds the split that separates the two sides best.
+5. **Quality gate.** Clipping, silence, speech and wind are caught before scoring. The answer is `retake`, with the fix.
+
+A check takes about 0.6 s on a laptop CPU.
 
 ## Scope
 
-Earshot detects change against one machine's own normal. It names the band, and Hermes suggests where to look. The diagnosis stays with a person. Record from the same spot and distance each time. Microphone changes and new background noise read as drift.
+Tickover detects change. It names the band that moved, and Hermes suggests where to look. It never names a fault. The diagnosis stays with a person. Record from the same spot and distance each time. A new microphone position reads as change.
 
 ## Data and network
 
-- First use downloads CED-base (87 MB) from Hugging Face, `mispeech/ced-base` at a pinned commit, checks its sha256, and stores it in the plugin data folder. Every other step runs offline.
-- `earshot_core/models/mn10_frames.onnx` (12 MB) ships with the plugin, pinned by sha256. `scripts/export_mn10.py` rebuilds it from the Injini and EfficientAT sources.
-- Audio stays on the machine. The microphone opens only during `earshot_listen`.
-- Machine baselines and check history live in Hermes's plugin data folder (`plugin-data/earshot`).
+- First use downloads CED-base (87 MB) from Hugging Face, `mispeech/ced-base` at a pinned commit, and checks its sha256. Every other step runs offline.
+- `tickover_core/models/mn10_frames.onnx` (12 MB) ships with the plugin, pinned by sha256. `scripts/export_mn10.py` rebuilds it.
+- Audio stays on the machine. The microphone opens only during `tickover_listen` and a microphone `tickover_verify`.
+- Baselines and history live in Hermes's plugin data folder (`plugin-data/tickover`).
 
 ## Credits
 
-CED (Dinkel et al., mispeech, Apache-2.0). EfficientAT (Schmid et al., MIT). Injini (rapha18th, MIT). DCASE 2024 Task 2 data (Nishida et al., CC BY-NC-SA 4.0, used for evaluation only). Method: BEAM (Saengthong and Shinozaki, 2026), relative deviation pooling (Wilkinghoff, Yadav and Tan, 2026).
+CED (Dinkel et al., mispeech, Apache-2.0). EfficientAT (Schmid et al., MIT). Injini (rapha18th, MIT). DCASE 2020 and 2024 Task 2 data (CC BY-NC-SA 4.0, evaluation only). Method: BEAM (Saengthong and Shinozaki, 2026), relative deviation pooling (Wilkinghoff, Yadav and Tan, 2026).
 
 MIT License.

@@ -53,7 +53,7 @@ def render(path: str, rows: list[dict], now: float | None = None, title: str = "
         if tr.get("last_z") is not None:
             msg = f"{tr['last_z']:+.1f} σ"
             if tr.get("slope_per_week") is not None:
-                msg += f" · {tr['slope_per_week']:+.1f} σ/week"
+                msg += f" · {round(tr['slope_per_week'], 1) + 0.0:+.1f} σ/week"
             if tr.get("days_to_drift") is not None and tr["state"] in ("worsening", "watch"):
                 msg += f" · drift line in ~{int(round(tr['days_to_drift']))} days"
             d.text((430, y + 66), msg, font=_font(18), fill=INK)

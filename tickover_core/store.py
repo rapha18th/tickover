@@ -78,6 +78,18 @@ def history(machine: str) -> list[dict]:
     return [{"ts": r[0], "z": r[1], "verdict": r[2], "png": r[3], "src": r[4]} for r in rows]
 
 
+def forget(name: str) -> bool:
+    """Remove a machine: its baseline, cards, profile and check history."""
+    import shutil
+    d = data_dir() / "machines" / slug(name)
+    found = d.exists()
+    if found:
+        shutil.rmtree(d, ignore_errors=True)
+    with _db() as c:
+        c.execute("delete from checks where machine=?", (slug(name),))
+    return found
+
+
 # ---------------------------------------------------------------- maintenance profile
 def profile(name: str) -> dict:
     f = data_dir() / "machines" / slug(name) / "profile.json"
@@ -92,6 +104,6 @@ def save_profile(name: str, **fields) -> dict:
 
 def last_checks(machine: str, n: int = 20) -> list[dict]:
     with _db() as c:
-        rows = c.execute("select ts, z, verdict, png from checks where machine=? order by ts desc limit ?",
+        rows = c.execute("select ts, z, verdict, png, src from checks where machine=? order by ts desc limit ?",
                          (slug(machine), n)).fetchall()
-    return [{"ts": r[0], "z": r[1], "verdict": r[2], "png": r[3]} for r in rows]
+    return [{"ts": r[0], "z": r[1], "verdict": r[2], "png": r[3], "src": r[4]} for r in rows]

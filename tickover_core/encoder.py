@@ -1,16 +1,19 @@
 """Frozen audio encoder: CED (Apache-2.0, mispeech) run through onnxruntime.
 
 CED is a ViT distilled on AudioSet. Its published ONNX graph takes a raw 16 kHz
-waveform and returns class logits. Tickover never uses the logits. On first use it
+waveform and returns 527 AudioSet class probabilities. On first use Tickover
 downloads the graph from Hugging Face at a pinned commit, checks its sha256, and
 adds the transformer's patch tokens as extra graph outputs. Those tokens form a
 time x frequency grid (4 mel bands x 62 frames per 10 s), which is what the drift
-scorer compares. Nothing else is downloaded and no audio leaves the machine.
+scorer compares. The class probabilities name what a clip sounds like and tell
+the quality gate when speech or wind covers the machine. Nothing else is
+downloaded and no audio leaves the machine.
 """
 from __future__ import annotations
 
 import hashlib
 import os
+import shutil
 import urllib.request
 from pathlib import Path
 
@@ -31,13 +34,24 @@ CLIP = 160_000  # 10 s at 16 kHz, the encoder's native window
 BAND_LABELS = ["0-0.6 kHz", "0.6-1.8 kHz", "1.8-3.9 kHz", "3.9-8 kHz"]  # 64 HTK mel bands split 4 ways
 
 
+def downloaded(name: str = DEFAULT) -> bool:
+    """True when the encoder is already on disk, so loading it will not start a download."""
+    from .store import data_dir
+    return (data_dir() / "models" / f"{name}-tokens.onnx").exists()
+
+
 def _fetch(name: str, models_dir: Path) -> Path:
     repo, rev, sha, _ = MODELS[name]
     raw = models_dir / f"{name}.onnx"
     if not raw.exists() or hashlib.sha256(raw.read_bytes()).hexdigest() != sha:
         url = f"https://huggingface.co/{repo}/resolve/{rev}/model.onnx"
         tmp = raw.with_suffix(".part")
-        urllib.request.urlretrieve(url, tmp)  # noqa: S310 - fixed https URL, pinned revision
+        try:
+            with urllib.request.urlopen(url, timeout=30) as r, open(tmp, "wb") as f:  # noqa: S310 - fixed https URL, pinned revision
+                shutil.copyfileobj(r, f)
+        except OSError as exc:
+            raise RuntimeError(f"Tickover needs a one-time 87 MB model download ({url}) into {models_dir} "
+                               f"and could not get it: {exc}") from exc
         got = hashlib.sha256(tmp.read_bytes()).hexdigest()
         if got != sha:
             tmp.unlink(missing_ok=True)
@@ -65,12 +79,30 @@ class Encoder:
         so.intra_op_num_threads = max(1, min(8, (os.cpu_count() or 4) - 1))
         self.sess = ort.InferenceSession(str(_fetch(name, models_dir)), so, providers=["CPUExecutionProvider"])
 
-    def grid(self, x: np.ndarray, layer: str = "L8") -> np.ndarray:
-        """16 kHz mono clip (3-10 s; longer is trimmed) -> (T', 4, D) patch-token grid."""
+    def run(self, x: np.ndarray, layer: str = "L8") -> tuple[np.ndarray, np.ndarray]:
+        """16 kHz mono clip (2-10 s; longer is trimmed) -> ((527,) class probabilities, (T', 4, D) token grid)."""
         x = x[:CLIP]
-        h = self.sess.run([LAYERS[layer]], {"waveform": x[None].astype(np.float32)})[0][0]
+        p, h = self.sess.run(["logits", LAYERS[layer]], {"waveform": x[None].astype(np.float32)})
+        h = h[0]
         tp = h.shape[0] // N_BANDS
-        return h.reshape(N_BANDS, tp, -1).transpose(1, 0, 2)
+        return p[0], h.reshape(N_BANDS, tp, -1).transpose(1, 0, 2)
+
+    def grid(self, x: np.ndarray, layer: str = "L8") -> np.ndarray:
+        return self.run(x, layer)[1]
+
+    def probs(self, x: np.ndarray) -> np.ndarray:
+        return self.sess.run(["logits"], {"waveform": x[None, :CLIP].astype(np.float32)})[0][0]
+
+
+_LABELS: list[str] = []
+
+
+def labels() -> list[str]:
+    """The 527 AudioSet class names, in the order of the probabilities."""
+    if not _LABELS:
+        import json
+        _LABELS.extend(json.loads((Path(__file__).resolve().parent / "audioset_labels.json").read_text(encoding="utf-8")))
+    return _LABELS
 
 
 _CACHE: dict[str, Encoder] = {}

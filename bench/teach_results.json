@@ -1,0 +1,1833 @@
+{
+ "k=3": {
+  "state: 3D printer (DCASE 2024): print speed 1 vs 2, same printer": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "2/3",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.5,
+     "median_margin_sigma": 1.05
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 2,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 2.53
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/3",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": -0.19
+    },
+    {
+     "held_out": "0/3",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 0,
+     "external_uncertain": 4,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": -1.52
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "1/16",
+     "external_unknown": 0,
+     "external_uncertain": 14,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "2/3",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 0,
+     "external_uncertain": 10,
+     "chance_of_luck": 0.5,
+     "median_margin_sigma": 2.71
+    },
+    {
+     "held_out": "2/6",
+     "active": false,
+     "external": "7/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.8906,
+     "median_margin_sigma": 0.58
+    },
+    {
+     "held_out": "2/3",
+     "active": false,
+     "external": "7/16",
+     "external_unknown": 0,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.5,
+     "median_margin_sigma": 1.23
+    },
+    {
+     "held_out": "1/3",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.875,
+     "median_margin_sigma": 0.05
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "42/144",
+   "external_when_on": "0/0",
+   "external_when_off": "42/144",
+   "wrong_label_when_on": 0
+  },
+  "state: brushless motor (DCASE 2024): slow vs fast": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "0/0",
+   "external_when_on": "0/0",
+   "external_when_off": "0/0",
+   "wrong_label_when_on": 0
+  },
+  "state: robot arm (DCASE 2024): no payload vs 35": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 6.65
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 1,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 5.47
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "9/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 6.03
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 1.54
+    },
+    {
+     "held_out": "2/6",
+     "active": false,
+     "external": "9/16",
+     "external_unknown": 0,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.8906,
+     "median_margin_sigma": 0.75
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 6.51
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 7.58
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "12/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 5.53
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 2,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 4.75
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "9/16",
+     "external_unknown": 1,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 3.27
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "91/160",
+   "external_when_on": "0/0",
+   "external_when_off": "91/160",
+   "wrong_label_when_on": 0
+  },
+  "state: air compressor (DCASE 2024): flow 0 vs 2": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 3,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 2.14
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 2,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 1.91
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 4.72
+    },
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "7/16",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 0.73
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 1,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.07
+    },
+    {
+     "held_out": "2/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.8906,
+     "median_margin_sigma": -0.56
+    },
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 2.88
+    },
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 2,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 1.02
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "7/16",
+     "external_unknown": 1,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 1.72
+    },
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 2,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 1.04
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "63/160",
+   "external_when_on": "0/0",
+   "external_when_off": "63/160",
+   "wrong_label_when_on": 0
+  },
+  "state: hovering drone (DCASE 2024): speed 1 vs 3": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 2,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 3.08
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "12/16",
+     "external_unknown": 1,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 5.99
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 2.47
+    },
+    {
+     "held_out": "6/6",
+     "active": false,
+     "external": "14/16",
+     "external_unknown": 2,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.0156,
+     "median_margin_sigma": 4.21
+    },
+    {
+     "held_out": "6/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 2,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.0156,
+     "median_margin_sigma": 3.55
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "13/16",
+     "external_unknown": 1,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 5.63
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.42
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "9/16",
+     "external_unknown": 3,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.18
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 1,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 4.4
+    },
+    {
+     "held_out": "6/6",
+     "active": false,
+     "external": "15/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.0156,
+     "median_margin_sigma": 4.28
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "107/160",
+   "external_when_on": "0/0",
+   "external_when_off": "107/160",
+   "wrong_label_when_on": 0
+  },
+  "state: which machine is running: pump vs fan (DCASE 2020)": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "14/16",
+     "external_unknown": 1,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 6.59
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "15/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 2.17
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "13/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 6.83
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 8.22
+    },
+    {
+     "held_out": "6/6",
+     "active": false,
+     "external": "12/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.0156,
+     "median_margin_sigma": 3.76
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 5,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 23.47
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "12/16",
+     "external_unknown": 0,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 2.11
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "13/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 6.69
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 5,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 29.58
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 20.5
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "118/160",
+   "external_when_on": "0/0",
+   "external_when_off": "118/160",
+   "wrong_label_when_on": 0
+  },
+  "fault: pump id_00 (DCASE 2020): normal vs abnormal": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 1.55
+    },
+    {
+     "held_out": "6/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 1,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.0156,
+     "median_margin_sigma": 7.82
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.73
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 3,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 2.8
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 7,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.02
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 8,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 5.29
+    },
+    {
+     "held_out": "2/6",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.8906,
+     "median_margin_sigma": 0.43
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 1.58
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "2/16",
+     "external_unknown": 7,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.54
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "1/16",
+     "external_unknown": 13,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 5.62
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "63/160",
+   "external_when_on": "0/0",
+   "external_when_off": "63/160",
+   "wrong_label_when_on": 0
+  },
+  "fault: fan id_00 (DCASE 2020): normal vs abnormal (drift fails here, AUC 0.48)": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 3,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 3.64
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 7.08
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 1.9
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 4,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 2.13
+    },
+    {
+     "held_out": "4/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.3438,
+     "median_margin_sigma": 1.32
+    },
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 1.67
+    },
+    {
+     "held_out": "1/6",
+     "active": false,
+     "external": "1/16",
+     "external_unknown": 0,
+     "external_uncertain": 13,
+     "chance_of_luck": 0.9844,
+     "median_margin_sigma": -1.13
+    },
+    {
+     "held_out": "1/6",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.9844,
+     "median_margin_sigma": -0.5
+    },
+    {
+     "held_out": "5/6",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1094,
+     "median_margin_sigma": 5.45
+    },
+    {
+     "held_out": "3/6",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.6562,
+     "median_margin_sigma": 2.1
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "55/160",
+   "external_when_on": "0/0",
+   "external_when_off": "55/160",
+   "wrong_label_when_on": 0
+  },
+  "fault: car engines (HF phone recordings): healthy vs misfire vs belt vs tappet": {
+   "k_per_state": 3,
+   "draws": [
+    {
+     "held_out": "0/6",
+     "active": false,
+     "external": "14/32",
+     "external_unknown": 1,
+     "external_uncertain": 7,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": -0.69
+    },
+    {
+     "held_out": "10/12",
+     "active": false,
+     "external": "8/32",
+     "external_unknown": 10,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 4.33
+    },
+    {
+     "held_out": "7/9",
+     "active": false,
+     "external": "19/32",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.0013,
+     "median_margin_sigma": 2.44
+    },
+    {
+     "held_out": "9/12",
+     "active": false,
+     "external": "12/32",
+     "external_unknown": 3,
+     "external_uncertain": 12,
+     "chance_of_luck": 0.0004,
+     "median_margin_sigma": 3.81
+    },
+    {
+     "held_out": "7/12",
+     "active": false,
+     "external": "13/32",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.0143,
+     "median_margin_sigma": 2.07
+    },
+    {
+     "held_out": "10/12",
+     "active": false,
+     "external": "22/32",
+     "external_unknown": 0,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 3.96
+    },
+    {
+     "held_out": "7/12",
+     "active": false,
+     "external": "14/32",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.0143,
+     "median_margin_sigma": 1.34
+    },
+    {
+     "held_out": "7/12",
+     "active": false,
+     "external": "10/32",
+     "external_unknown": 0,
+     "external_uncertain": 11,
+     "chance_of_luck": 0.0143,
+     "median_margin_sigma": 1.59
+    },
+    {
+     "held_out": "10/12",
+     "active": false,
+     "external": "21/32",
+     "external_unknown": 0,
+     "external_uncertain": 11,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 2.2
+    },
+    {
+     "held_out": "8/12",
+     "active": false,
+     "external": "15/32",
+     "external_unknown": 2,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.0028,
+     "median_margin_sigma": 1.61
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "148/320",
+   "external_when_on": "0/0",
+   "external_when_off": "148/320",
+   "wrong_label_when_on": 0
+  }
+ },
+ "k=5": {
+  "state: 3D printer (DCASE 2024): print speed 1 vs 2, same printer": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "0/9",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": -0.6
+    },
+    {
+     "held_out": "5/8",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.3633,
+     "median_margin_sigma": 1.29
+    },
+    {
+     "held_out": "1/10",
+     "active": false,
+     "external": "1/16",
+     "external_unknown": 0,
+     "external_uncertain": 14,
+     "chance_of_luck": 0.999,
+     "median_margin_sigma": -0.14
+    },
+    {
+     "held_out": "2/9",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 0,
+     "external_uncertain": 11,
+     "chance_of_luck": 0.9805,
+     "median_margin_sigma": 0.34
+    },
+    {
+     "held_out": "4/9",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 0,
+     "external_uncertain": 12,
+     "chance_of_luck": 0.7461,
+     "median_margin_sigma": -0.71
+    },
+    {
+     "held_out": "0/5",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": -0.71
+    },
+    {
+     "held_out": "2/10",
+     "active": false,
+     "external": "6/16",
+     "external_unknown": 0,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.9893,
+     "median_margin_sigma": 0.11
+    },
+    {
+     "held_out": "1/10",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 11,
+     "chance_of_luck": 0.999,
+     "median_margin_sigma": -0.91
+    },
+    {
+     "held_out": "0/10",
+     "active": false,
+     "external": "2/16",
+     "external_unknown": 0,
+     "external_uncertain": 14,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": -0.19
+    },
+    {
+     "held_out": "2/9",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 0,
+     "external_uncertain": 12,
+     "chance_of_luck": 0.9805,
+     "median_margin_sigma": -0.12
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "38/160",
+   "external_when_on": "0/0",
+   "external_when_off": "38/160",
+   "wrong_label_when_on": 0
+  },
+  "state: brushless motor (DCASE 2024): slow vs fast": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": null,
+     "median_margin_sigma": null,
+     "refused": "quality gate rejected the recordings"
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    },
+    {
+     "held_out": "0/0",
+     "active": false,
+     "external": "0/0",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.0
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "0/0",
+   "external_when_on": "0/0",
+   "external_when_off": "0/0",
+   "wrong_label_when_on": 0
+  },
+  "state: robot arm (DCASE 2024): no payload vs 35": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "7/10",
+     "active": false,
+     "external": "14/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.1719,
+     "median_margin_sigma": 2.15
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "14/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 3.0
+    },
+    {
+     "held_out": "7/10",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1719,
+     "median_margin_sigma": 3.48
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 2.86
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "16/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.78
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "9/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 2.27
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.29
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "14/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 2.48
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 3,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 3.11
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 4.75
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "116/160",
+   "external_when_on": "0/0",
+   "external_when_off": "116/160",
+   "wrong_label_when_on": 0
+  },
+  "state: air compressor (DCASE 2024): flow 0 vs 2": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "3/10",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.9453,
+     "median_margin_sigma": -0.6
+    },
+    {
+     "held_out": "2/10",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 0,
+     "external_uncertain": 10,
+     "chance_of_luck": 0.9893,
+     "median_margin_sigma": 0.45
+    },
+    {
+     "held_out": "2/10",
+     "active": false,
+     "external": "2/16",
+     "external_unknown": 0,
+     "external_uncertain": 13,
+     "chance_of_luck": 0.9893,
+     "median_margin_sigma": 0.32
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "5/16",
+     "external_unknown": 2,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.63
+    },
+    {
+     "held_out": "0/10",
+     "active": false,
+     "external": "2/16",
+     "external_unknown": 2,
+     "external_uncertain": 11,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.13
+    },
+    {
+     "held_out": "1/10",
+     "active": false,
+     "external": "3/16",
+     "external_unknown": 0,
+     "external_uncertain": 13,
+     "chance_of_luck": 0.999,
+     "median_margin_sigma": 0.53
+    },
+    {
+     "held_out": "2/10",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.9893,
+     "median_margin_sigma": -0.51
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.64
+    },
+    {
+     "held_out": "0/10",
+     "active": false,
+     "external": "0/16",
+     "external_unknown": 0,
+     "external_uncertain": 16,
+     "chance_of_luck": 1.0,
+     "median_margin_sigma": 0.22
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "4/16",
+     "external_unknown": 0,
+     "external_uncertain": 12,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.17
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "37/160",
+   "external_when_on": "0/0",
+   "external_when_off": "37/160",
+   "wrong_label_when_on": 0
+  },
+  "state: hovering drone (DCASE 2024): speed 1 vs 3": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "9/10",
+     "active": true,
+     "external": "15/16",
+     "external_unknown": 0,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.0107,
+     "median_margin_sigma": 2.79
+    },
+    {
+     "held_out": "9/10",
+     "active": true,
+     "external": "16/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.0107,
+     "median_margin_sigma": 3.97
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 0.97
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "14/16",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 1.9
+    },
+    {
+     "held_out": "9/10",
+     "active": true,
+     "external": "13/16",
+     "external_unknown": 2,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.0107,
+     "median_margin_sigma": 2.52
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 1,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 2.19
+    },
+    {
+     "held_out": "10/10",
+     "active": true,
+     "external": "14/16",
+     "external_unknown": 1,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.001,
+     "median_margin_sigma": 4.25
+    },
+    {
+     "held_out": "7/10",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 0,
+     "external_uncertain": 4,
+     "chance_of_luck": 0.1719,
+     "median_margin_sigma": 1.69
+    },
+    {
+     "held_out": "9/10",
+     "active": true,
+     "external": "12/16",
+     "external_unknown": 3,
+     "external_uncertain": 1,
+     "chance_of_luck": 0.0107,
+     "median_margin_sigma": 2.44
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 3.5
+    }
+   ],
+   "active_draws": 5,
+   "of_draws": 10,
+   "external_total": "126/160",
+   "external_when_on": "70/80",
+   "external_when_off": "56/80",
+   "wrong_label_when_on": 0
+  },
+  "state: which machine is running: pump vs fan (DCASE 2020)": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 5,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 18.44
+    },
+    {
+     "held_out": "7/10",
+     "active": false,
+     "external": "15/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.1719,
+     "median_margin_sigma": 4.06
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 1,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 2.63
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "15/16",
+     "external_unknown": 1,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 4.38
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "9/16",
+     "external_unknown": 0,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 2.06
+    },
+    {
+     "held_out": "10/10",
+     "active": true,
+     "external": "15/16",
+     "external_unknown": 0,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.001,
+     "median_margin_sigma": 6.97
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "11/16",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.74
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "8/16",
+     "external_unknown": 2,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 8.62
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "10/16",
+     "external_unknown": 1,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 1.68
+    },
+    {
+     "held_out": "9/10",
+     "active": true,
+     "external": "11/16",
+     "external_unknown": 0,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.0107,
+     "median_margin_sigma": 3.0
+    }
+   ],
+   "active_draws": 2,
+   "of_draws": 10,
+   "external_total": "116/160",
+   "external_when_on": "26/32",
+   "external_when_off": "90/128",
+   "wrong_label_when_on": 3
+  },
+  "fault: pump id_00 (DCASE 2020): normal vs abnormal": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "8/15",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.78
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "7/15",
+     "external_unknown": 0,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 0.85
+    },
+    {
+     "held_out": "8/10",
+     "active": false,
+     "external": "8/15",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.0547,
+     "median_margin_sigma": 1.9
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "9/15",
+     "external_unknown": 0,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 1.8
+    },
+    {
+     "held_out": "3/10",
+     "active": false,
+     "external": "7/15",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.9453,
+     "median_margin_sigma": 0.45
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "7/15",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 1.71
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "7/15",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 1.95
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "7/15",
+     "external_unknown": 0,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 0.87
+    },
+    {
+     "held_out": "6/10",
+     "active": false,
+     "external": "6/15",
+     "external_unknown": 0,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.377,
+     "median_margin_sigma": 1.19
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "9/15",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 1.63
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "75/150",
+   "external_when_on": "0/0",
+   "external_when_off": "75/150",
+   "wrong_label_when_on": 0
+  },
+  "fault: fan id_00 (DCASE 2020): normal vs abnormal (drift fails here, AUC 0.48)": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "6/15",
+     "external_unknown": 0,
+     "external_uncertain": 5,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.77
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "4/15",
+     "external_unknown": 0,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.85
+    },
+    {
+     "held_out": "2/10",
+     "active": false,
+     "external": "2/15",
+     "external_unknown": 0,
+     "external_uncertain": 12,
+     "chance_of_luck": 0.9893,
+     "median_margin_sigma": -0.41
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "7/15",
+     "external_unknown": 0,
+     "external_uncertain": 2,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 0.26
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "5/15",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 1.37
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "8/15",
+     "external_unknown": 1,
+     "external_uncertain": 0,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": -1.93
+    },
+    {
+     "held_out": "5/10",
+     "active": false,
+     "external": "4/15",
+     "external_unknown": 0,
+     "external_uncertain": 7,
+     "chance_of_luck": 0.623,
+     "median_margin_sigma": 1.52
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "6/15",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.82
+    },
+    {
+     "held_out": "1/10",
+     "active": false,
+     "external": "0/15",
+     "external_unknown": 12,
+     "external_uncertain": 3,
+     "chance_of_luck": 0.999,
+     "median_margin_sigma": -0.79
+    },
+    {
+     "held_out": "4/10",
+     "active": false,
+     "external": "6/15",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.8281,
+     "median_margin_sigma": 0.42
+    }
+   ],
+   "active_draws": 0,
+   "of_draws": 10,
+   "external_total": "48/150",
+   "external_when_on": "0/0",
+   "external_when_off": "48/150",
+   "wrong_label_when_on": 0
+  },
+  "fault: car engines (HF phone recordings): healthy vs misfire vs belt vs tappet": {
+   "k_per_state": 5,
+   "draws": [
+    {
+     "held_out": "12/20",
+     "active": false,
+     "external": "14/32",
+     "external_unknown": 1,
+     "external_uncertain": 14,
+     "chance_of_luck": 0.0009,
+     "median_margin_sigma": 1.81
+    },
+    {
+     "held_out": "14/19",
+     "active": false,
+     "external": "18/32",
+     "external_unknown": 1,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 2.52
+    },
+    {
+     "held_out": "6/18",
+     "active": false,
+     "external": "14/32",
+     "external_unknown": 0,
+     "external_uncertain": 17,
+     "chance_of_luck": 0.2825,
+     "median_margin_sigma": 0.28
+    },
+    {
+     "held_out": "7/19",
+     "active": false,
+     "external": "11/32",
+     "external_unknown": 0,
+     "external_uncertain": 15,
+     "chance_of_luck": 0.1749,
+     "median_margin_sigma": 0.72
+    },
+    {
+     "held_out": "14/20",
+     "active": false,
+     "external": "24/32",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 1.57
+    },
+    {
+     "held_out": "18/20",
+     "active": true,
+     "external": "22/32",
+     "external_unknown": 0,
+     "external_uncertain": 10,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 3.07
+    },
+    {
+     "held_out": "9/20",
+     "active": false,
+     "external": "19/32",
+     "external_unknown": 2,
+     "external_uncertain": 9,
+     "chance_of_luck": 0.0409,
+     "median_margin_sigma": 0.81
+    },
+    {
+     "held_out": "8/19",
+     "active": false,
+     "external": "17/32",
+     "external_unknown": 0,
+     "external_uncertain": 14,
+     "chance_of_luck": 0.0775,
+     "median_margin_sigma": 0.68
+    },
+    {
+     "held_out": "17/20",
+     "active": true,
+     "external": "22/32",
+     "external_unknown": 1,
+     "external_uncertain": 8,
+     "chance_of_luck": 0.0,
+     "median_margin_sigma": 2.86
+    },
+    {
+     "held_out": "10/19",
+     "active": false,
+     "external": "23/32",
+     "external_unknown": 0,
+     "external_uncertain": 6,
+     "chance_of_luck": 0.0089,
+     "median_margin_sigma": 1.08
+    }
+   ],
+   "active_draws": 2,
+   "of_draws": 10,
+   "external_total": "184/320",
+   "external_when_on": "44/64",
+   "external_when_off": "140/256",
+   "wrong_label_when_on": 1
+  }
+ }
+}

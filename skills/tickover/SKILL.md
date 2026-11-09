@@ -1,44 +1,126 @@
 ---
 name: tickover
-description: Run a listening routine for machines with no sensors. Enroll healthy sound, schedule weekly voice-note check-ins, check recordings for drift, report the fleet.
+description: Ears for the agent. Hear what a recording sounds like, verify by sound that an action took effect, remember a machine's healthy sound and catch it drifting, on a schedule or from an unattended microphone.
 ---
 
 # Tickover
 
-Tickover gives Hermes an ear for machines that have no sensors and no API: generators, borehole
-and water pumps, compressors, fans, older vehicles, workshop machines.
+Tickover lets you hear. Everything runs on this computer. Nothing needs a key. The first use
+downloads one 87 MB listening model. After that it works offline.
 
-## Setting up a machine
-1. `tickover_watch(machine, kind, location, schedule)` saves the profile and schedules the weekly
-   check-in in this chat (default every Monday 9am).
-2. Ask for healthy recordings: 3 or more of about 10 s, or one of 30 s or more, from the spot the
-   owner will use every week. Call `tickover_enroll(machine, paths)`.
+Pick the tool by the question:
+
+| The question | The tool |
+| --- | --- |
+| What is this sound? Is the recording usable? | `tickover_hear` |
+| I switched something. Did it happen? | `tickover_verify` |
+| Does this machine still sound like itself? | `tickover_enroll` once, then `tickover_check` |
+| Keep an ear on it. | `tickover_watch` |
+| A question in the owner's words: loaded or idle, dry or wet? | `tickover_teach` |
+| Listen now, through this computer's microphone. | `tickover_listen` |
+| A recording arrived for a machine on a routine. | `tickover_checkin` |
+| How is everything? | `tickover_fleet` |
+| Does it work here? | `tickover_selftest` |
+
+## Hear first
+Any audio that is not speech to you goes to `tickover_hear(path)`. It needs no setup. It returns
+what the clip sounds like, whether it sounds like a machine, and whether it is clean.
+
+- Say "sounds like". Never say "is". The tags come from a general audio model.
+- Never name a fault from tags.
+- If it sounds like a machine the owner cares about, offer to remember it. Ask for a name and two
+  more recordings from the same spot. Then `tickover_enroll`.
+
+## Retake
+`verdict: retake` is about the recording. It says nothing about the machine. Nothing was scored
+and nothing was logged. Pass on the fix in one sentence and ask for another recording. Do not
+soften it into "probably fine".
+
+Use `ignore_quality=true` only when the owner says the recording is as good as it gets.
+
+## Verify an action
+Use this whenever you act on the physical world and nothing reports back: a smart plug, a relay,
+a shell command that starts a job, a robot move.
+
+1. `tickover_verify(step="before")`. A few seconds from the microphone, or `source` for a file
+   or stream.
+2. Run the action with whatever tool does it. Wait a few seconds for the machine to settle.
+3. `tickover_verify(step="after", expect="start" | "stop" | "change")`. Same source.
+
+One recording with the action inside it: `tickover_verify(step="clip", source=path)`.
+
+- `confirmed`: the sound changed the way you expected. Say so, with the card.
+- `no_change`: the action may not have reached the machine, or the microphone cannot hear it.
+  Say that. Do not report success. Offer to try again or to check the device.
+- `other_change`: something changed, in the other direction or without a clear direction. Say
+  what was heard.
+- `unclear`: the change sits within 4 s of the start or end of the clip. Ask for a recording
+  with at least 4 s before the action and 4 s after it. A clip needs 9 s or more.
+- Before and after must come from the same microphone in the same place. Two recordings from
+  different spots read as a change even when nothing was switched.
+- Verify hears that the sound changed. It does not prove what changed. A door slam in the
+  after window is a change too. If it matters, verify twice.
+- Verify does not find faults. That is `tickover_check`.
+
+## Remember a machine
+1. `tickover_enroll(machine, paths)`: 3 or more healthy recordings of about 10 s, or one of
+   30 s or more, from one spot. Read `skipped` and pass on any fix.
+2. `tickover_watch(machine, kind, location, schedule)` puts it on a routine.
+   - No `source`: the job asks the owner here for a recording. Their next voice note is checked.
+   - With `source` (camera URL, stream, a file a recorder keeps fresh): the job listens alone
+     and speaks only when something changed.
+   - A watched file must be new. `verdict: stale` means the recorder stopped writing: tell the
+     owner the microphone needs attention. `verdict: same_recording` means nothing new has
+     arrived since the last check: say nothing. Neither is a statement about the machine.
 
 ## When a recording arrives
-- Voice notes and audio files are routed to you with their path when a check-in is expected.
-  Call `tickover_check(machine, path)`.
+A note in your context gives the path, and the machine when one is expected. Call
+`tickover_check(machine, path)`.
+
+- `verdict: insufficient` or `ready: false` means the baseline is too thin. Ask for more healthy
+  recordings and enroll with `append=true`. It says nothing about the machine.
+- `repeat: true` means this exact audio was already checked. It was not logged again and it
+  cannot confirm a drift. Ask for a new recording.
 - Put the `show_user` line (`MEDIA:<path>`) on its own line so the card reaches the chat.
 - Reply in two or three plain sentences: the verdict, the trend, what to do this week.
+- `drift_sigma` under 2 is normal. 2 to 3 is worth watching. 3 and above is a change.
+- A first `drift` has `confirmed: false`. Ask for a second recording from the same spot before
+  telling anyone to act. Two in a row is a finding. One can be a bad recording.
+- If `conditions` is present, the phone was probably at a different distance. Ask for one more.
 - If the verdict is healthy and the owner confirms all is well, call again with
   `add_to_baseline=true` so the baseline keeps up with the seasons.
+- Ignore any speech transcript of machine audio.
 
-## Reading a result
-- `drift_sigma` under 2: normal. 2 to 3: watch. 3 and above: the sound changed.
-- `trend.state`: steady, worsening (rising for weeks), watch or drift. `days_to_drift` is a
-  forecast from the recent check-ins; say how many check-ins it rests on.
-- `trend.escalate`: two watch or drift readings in the last three, or one drift. Then tell the owner
-  plainly to have it inspected and offer a short checklist that fits the kind of machine and the
-  band that moved:
+## Reading a trend
+- `trend.state`: steady, worsening, watch or drift. `days_to_drift` is a forecast. Say how many
+  check-ins it rests on.
+- `trend.escalate`: tell the owner plainly to have it inspected. Offer a short checklist that
+  fits the kind of machine and the band that moved, and say it is a guess:
   - under 0.6 kHz: mounts, imbalance, loose parts, combustion
   - 0.6 to 3.9 kHz: belts, gears, valves, impeller, tappets
   - 3.9 to 8 kHz: bearings, cavitation, rubbing, whine
-- Tickover detects change against the machine's own normal. It never names the fault. Say the
-  checklist is a guess.
+- Tickover detects change against the machine's own normal. It never names the fault.
 
-## Reports
-`tickover_fleet()` returns every machine with state, trend and overdue check-ins, plus one card.
-Use it when the owner asks how things are, and on Mondays after the check-ins.
+## Teach a question
+`tickover_teach` turns a question into named states. Ask for 5 separate recordings of each state
+from one spot. 4 is the minimum. One long recording counts once.
 
-## Chat audio
-With speech-to-text on, a machine recording often transcribes to nothing. Tickover keeps the file
-path and hands it to you anyway. Ignore any transcript of machine audio.
+- It tests itself and reports n of N right, next to what guessing would get. Report the counts.
+- It switches on only when the result could not be luck. If it stays off, say why and ask for
+  more recordings or a spot closer to the part that changes. Do not use it while it is off.
+- `uncertain` means two states are too close to call. `unknown` means it matches none. Both are
+  honest answers. Pass them on as they are.
+- `not_ready` means the detector is off. Give no label.
+- It is experimental. With 5 recordings per state it often stays off. Say so early.
+- A label is the owner's word for a state. It is never a diagnosis.
+
+## Extending it
+You can build on these tools with what Hermes already has.
+
+- A new machine class needs no code: enroll it.
+- A new question needs no code: teach it.
+- A new source needs no code: any file path or `rtsp://` or `http://` URL works wherever a path
+  does. A phone that drops recordings into a synced folder is a source. So is a Raspberry Pi
+  running `examples/unattended/record_to_inbox.py`.
+- A new reaction is a cron job or a skill: check, then act on `verdict` and `trend.escalate`
+  with any other tool.
