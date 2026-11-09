@@ -84,3 +84,11 @@ def test_register_with_stub_context():
     assert set(ctx.tools) == {"earshot_enroll", "earshot_check", "earshot_listen", "earshot_status"}
     assert "earshot" in ctx.skills
     assert json.loads(ctx.tools["earshot_status"]({}))["ok"] is True
+
+
+def test_paths_accept_glob_and_folder(tmp_path):
+    from earshot_core import selftest, tools
+    for i in range(3):
+        sf.write(tmp_path / f"healthy_{i}.wav", selftest.fan(seed=i), 16000)
+    assert len(tools._paths({"paths": [str(tmp_path / "healthy_*.wav")]})) == 3
+    assert len(tools._paths({"paths": str(tmp_path)})) == 3

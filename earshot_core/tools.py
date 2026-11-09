@@ -31,9 +31,24 @@ def _guard(fn):
     return run
 
 
+AUDIO_EXT = (".wav", ".flac", ".ogg", ".oga", ".opus", ".mp3", ".m4a", ".aac", ".mp4", ".mov", ".webm", ".mkv")
+
+
+def _expand(x: str) -> list[str]:
+    """A path, a folder (all audio inside) or a glob pattern."""
+    import glob
+    x = os.path.expanduser(str(x).strip().strip('"'))
+    if any(c in x for c in "*?["):
+        return sorted(glob.glob(x))
+    if os.path.isdir(x):
+        return sorted(os.path.join(x, f) for f in os.listdir(x) if f.lower().endswith(AUDIO_EXT))
+    return [x]
+
+
 def _paths(a) -> list[str]:
     p = a.get("paths") or a.get("path") or []
     p = [p] if isinstance(p, str) else list(p)
+    p = [y for x in p for y in _expand(x)]
     missing = [x for x in p if not os.path.exists(x)]
     if missing:
         raise ValueError(f"file not found: {missing}")
@@ -94,7 +109,7 @@ def _schema(name, desc, props, req):
 
 MACHINE = {"type": "string", "description": "A name for the machine, e.g. 'robot arm joint 3', 'generator', 'GPU fan'."}
 FILES = {"type": "array", "items": {"type": "string"},
-         "description": "Paths to audio or video files on this machine (wav, ogg/opus voice notes, m4a, mp4...)."}
+         "description": "Audio or video files on this machine (wav, ogg/opus voice notes, m4a, mp4...). Each entry may also be a folder or a glob such as C:/recordings/healthy_*.wav."}
 
 
 def tool_specs() -> list[dict]:
