@@ -9,19 +9,19 @@ import soundfile as sf
 
 @pytest.fixture(autouse=True)
 def _home(tmp_path_factory, monkeypatch):
-    shared = os.environ.get("NZEVE_TEST_HOME") or str(tmp_path_factory.getbasetemp() / "home")
-    monkeypatch.setenv("NZEVE_HOME", shared)
+    shared = os.environ.get("TICKOVER_TEST_HOME") or str(tmp_path_factory.getbasetemp() / "home")
+    monkeypatch.setenv("TICKOVER_HOME", shared)
 
 
 def test_selftest_separates_fault():
-    from nzeve_core import selftest
+    from tickover_core import selftest
     r = selftest.run(verbose=False)
     assert r["ok"], r
     assert r["faulty_clip"]["most_changed_band"] == "3.9-8 kHz"
 
 
 def test_insufficient_baseline(tmp_path):
-    from nzeve_core import engine, selftest
+    from tickover_core import engine, selftest
     p = tmp_path / "one.wav"
     sf.write(p, selftest.fan(seed=1), 16000)
     r = engine.enroll("lonely pump", [str(p)])
@@ -31,7 +31,7 @@ def test_insufficient_baseline(tmp_path):
 
 
 def test_long_recording_splits(tmp_path):
-    from nzeve_core import engine, selftest
+    from tickover_core import engine, selftest
     p = tmp_path / "long.wav"
     sf.write(p, np.concatenate([selftest.fan(seed=i) for i in range(4)]), 16000)
     r = engine.enroll("long fan", [str(p)])
@@ -39,7 +39,7 @@ def test_long_recording_splits(tmp_path):
 
 
 def test_tools_return_json_errors():
-    from nzeve_core import tools
+    from tickover_core import tools
     out = json.loads(tools.check_tool({"machine": "nope", "path": "missing.wav"}))
     assert out["ok"] is False
     out = json.loads(tools.check_tool({"machine": "never enrolled", "path": __file__}))
@@ -48,13 +48,13 @@ def test_tools_return_json_errors():
 
 def test_plugin_manifest_matches_tools():
     import yaml
-    from nzeve_core import tools
+    from tickover_core import tools
     m = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), os.pardir, "plugin.yaml")))
     assert sorted(m["provides_tools"]) == sorted(t["name"] for t in tools.tool_specs())
 
 
 def test_too_short(tmp_path):
-    from nzeve_core import engine
+    from tickover_core import engine
     p = tmp_path / "blip.wav"
     sf.write(p, np.zeros(8000, np.float32), 16000)
     with pytest.raises(ValueError):
@@ -73,7 +73,7 @@ def test_register_with_stub_context():
             self.tools, self.skills, self.hooks, self.dispatched = {}, {}, {}, []
 
         def register_tool(self, name, toolset, schema, handler, **kw):
-            assert toolset == "nzeve" and schema["name"] == name and callable(handler)
+            assert toolset == "tickover" and schema["name"] == name and callable(handler)
             self.tools[name] = handler
 
         def register_skill(self, name, path):
@@ -88,17 +88,17 @@ def test_register_with_stub_context():
 
     ctx = Ctx()
     mod.register(ctx)
-    assert set(ctx.tools) == {"nzeve_enroll", "nzeve_check", "nzeve_watch", "nzeve_checkin", "nzeve_fleet", "nzeve_listen"}
-    assert "nzeve" in ctx.skills
+    assert set(ctx.tools) == {"tickover_enroll", "tickover_check", "tickover_watch", "tickover_checkin", "tickover_fleet", "tickover_listen"}
+    assert "tickover" in ctx.skills
     assert set(ctx.hooks) == {"pre_gateway_dispatch", "pre_llm_call"}
-    w = json.loads(ctx.tools["nzeve_watch"]({"machine": "borehole pump", "kind": "pump", "location": "farm"}))
+    w = json.loads(ctx.tools["tickover_watch"]({"machine": "borehole pump", "kind": "pump", "location": "farm"}))
     assert w["ok"] and ctx.dispatched[0][0] == "cronjob_manage" and ctx.dispatched[0][1]["action"] == "create"
     assert w["profile"]["cron_job"] == "job123"
-    assert json.loads(ctx.tools["nzeve_fleet"]({}))["ok"] is True
+    assert json.loads(ctx.tools["tickover_fleet"]({}))["ok"] is True
 
 
 def test_paths_accept_glob_and_folder(tmp_path):
-    from nzeve_core import selftest, tools
+    from tickover_core import selftest, tools
     for i in range(3):
         sf.write(tmp_path / f"healthy_{i}.wav", selftest.fan(seed=i), 16000)
     assert len(tools._paths({"paths": [str(tmp_path / "healthy_*.wav")]})) == 3
@@ -106,7 +106,7 @@ def test_paths_accept_glob_and_folder(tmp_path):
 
 
 def test_trend_forecast():
-    from nzeve_core import trend
+    from tickover_core import trend
     day = 86400.0
     h = [{"ts": i * 7 * day, "z": z, "verdict": "healthy"} for i, z in enumerate([0.1, 0.4, 0.9, 1.3, 1.8])]
     t = trend.analyse(h, now=4 * 7 * day)
@@ -119,7 +119,7 @@ def test_trend_forecast():
 
 def test_voice_note_routing_hooks(tmp_path):
     from types import SimpleNamespace
-    from nzeve_core import agent, store
+    from tickover_core import agent, store
     store.save_profile("genset", kind="genset", owner="telegram:42")
     agent.checkin("genset")
     ev = SimpleNamespace(media_urls=[str(tmp_path / "v.ogg")], media_types=["audio/ogg"],

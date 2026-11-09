@@ -112,7 +112,7 @@ def listen_tool(a):
         raise ValueError("seconds must be between 3 and 120")
     x = audio.record(secs, a.get("device"))
     import soundfile as sf
-    path = os.path.join(tempfile.gettempdir(), f"nzeve_{int(time.time())}.wav")
+    path = os.path.join(tempfile.gettempdir(), f"tickover_{int(time.time())}.wav")
     sf.write(path, x, audio.SR)
     out = {"ok": True, "recorded": path, "seconds": secs, "level_db": round(audio.level_db(x), 1)}
     mode = a.get("then")
@@ -135,28 +135,28 @@ FILES = {"type": "array", "items": {"type": "string"},
 
 def tool_specs() -> list[dict]:
     return [
-        {"name": "nzeve_enroll", "handler": enroll_tool, "emoji": "👂", "schema": _schema(
-            "nzeve_enroll",
-            "Teach Nzeve how one machine sounds when it is healthy. Give 3 or more recordings of about 10 s, "
+        {"name": "tickover_enroll", "handler": enroll_tool, "emoji": "👂", "schema": _schema(
+            "tickover_enroll",
+            "Teach Tickover how one machine sounds when it is healthy. Give 3 or more recordings of about 10 s, "
             "or one recording of 30 s or more (it is split into 10 s clips). Use the same spot and distance each time. "
             "Runs locally; no audio leaves the machine.",
             {"machine": MACHINE, "paths": FILES,
              "append": {"type": "boolean", "description": "Add to an existing baseline instead of replacing it."}},
             ["machine", "paths"])},
-        {"name": "nzeve_check", "handler": check_tool, "emoji": "👂", "schema": _schema(
-            "nzeve_check",
+        {"name": "tickover_check", "handler": check_tool, "emoji": "👂", "schema": _schema(
+            "tickover_check",
             "Score a new recording against the machine's own healthy baseline. Returns drift in robust sigmas "
             "(under 2 normal, 2-3 watch, 3+ changed), which frequency bands moved, the trend over past check-ins "
             "(slope per week, days until the drift line, whether to escalate) and a PNG card. "
             "Always show the card by putting the returned show_user line (MEDIA:<path>) on its own line in your reply. "
-            "Nzeve detects change from the machine's own normal; it does not name the fault. Suggest what to inspect "
+            "Tickover detects change from the machine's own normal; it does not name the fault. Suggest what to inspect "
             "from the bands and the kind of machine, and say it is a guess.",
             {"machine": MACHINE, "path": {"type": "string", "description": "Path to the recording to check (a folder or glob works too)."},
              "recorded_at": {"type": "string", "description": "Optional ISO date the recording was made, when it is not today."},
              "add_to_baseline": {"type": "boolean", "description": "If the owner confirms the machine is fine and the verdict is healthy, add this recording to the baseline."}},
             ["machine", "path"])},
-        {"name": "nzeve_watch", "handler": watch_tool, "emoji": "🗓️", "schema": _schema(
-            "nzeve_watch",
+        {"name": "tickover_watch", "handler": watch_tool, "emoji": "🗓️", "schema": _schema(
+            "tickover_watch",
             "Put a machine on a listening routine: save what it is and where, how to record it, and schedule a "
             "Hermes cron check-in (default every Monday 9am) that asks the owner, in this chat, for a 10-second recording. "
             "Use for machines with no sensors: generators, borehole and water pumps, compressors, fans, older vehicles.",
@@ -166,19 +166,19 @@ def tool_specs() -> list[dict]:
              "schedule": {"type": "string", "description": "Hermes schedule, e.g. 'every monday 9am', 'every 3 days', '0 8 * * 1'. Empty for no reminders."},
              "tip": {"type": "string", "description": "How to record this machine, if the default for its kind does not fit."}},
             ["machine"])},
-        {"name": "nzeve_checkin", "handler": checkin_tool, "emoji": "📨", "schema": _schema(
-            "nzeve_checkin",
+        {"name": "tickover_checkin", "handler": checkin_tool, "emoji": "📨", "schema": _schema(
+            "tickover_checkin",
             "Mark that a recording of this machine is expected from its owner now, and get the recording instructions to "
             "send them. The scheduled check-in job calls this; the next voice note or audio file from that chat is routed "
-            "to nzeve_check automatically.",
+            "to tickover_check automatically.",
             {"machine": MACHINE}, ["machine"])},
-        {"name": "nzeve_fleet", "handler": fleet_tool, "emoji": "📋", "schema": _schema(
-            "nzeve_fleet",
+        {"name": "tickover_fleet", "handler": fleet_tool, "emoji": "📋", "schema": _schema(
+            "tickover_fleet",
             "Report on every watched machine: state (steady, worsening, watch, drift), drift trend per week, forecast "
             "days until the drift line, overdue check-ins, and one fleet card image (show it with its MEDIA: line).",
             {}, [])},
-        {"name": "nzeve_listen", "handler": listen_tool, "emoji": "🎙️", "schema": _schema(
-            "nzeve_listen",
+        {"name": "tickover_listen", "handler": listen_tool, "emoji": "🎙️", "schema": _schema(
+            "tickover_listen",
             "Record from this computer's microphone, then optionally enroll or check in one step. "
             "Use when the machine is next to the computer (a PC fan, a 3D printer, a robot on the bench).",
             {"seconds": {"type": "number", "description": "3-120 seconds. Default 10."},
@@ -193,7 +193,7 @@ def register_tools(ctx) -> None:
     from . import agent
     agent.CTX = ctx
     for t in tool_specs():
-        ctx.register_tool(name=t["name"], toolset="nzeve", schema=t["schema"], handler=t["handler"],
+        ctx.register_tool(name=t["name"], toolset="tickover", schema=t["schema"], handler=t["handler"],
                           description=t["schema"]["description"], emoji=t["emoji"])
     if hasattr(ctx, "register_hook"):
         ctx.register_hook("pre_gateway_dispatch", agent.on_inbound)

@@ -28,7 +28,7 @@ def render(path: str, rows: list[dict], now: float | None = None, title: str = "
     H = 150 + RH * max(1, len(rows)) + 60
     img = Image.new("RGB", (W, H), BG)
     d = ImageDraw.Draw(img)
-    d.text((48, 36), "NZEVE", font=_font(18, True), fill=MUTED)
+    d.text((48, 36), "TICKOVER", font=_font(18, True), fill=MUTED)
     d.text((48, 62), title, font=_font(40, True), fill=INK)
     d.text((W - 48 - d.textlength(time.strftime("%d %b %Y", time.localtime(now)), font=_font(20)), 80),
            time.strftime("%d %b %Y", time.localtime(now)), font=_font(20), fill=MUTED)

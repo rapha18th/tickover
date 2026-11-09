@@ -1,7 +1,7 @@
 """Frozen audio encoder: CED (Apache-2.0, mispeech) run through onnxruntime.
 
 CED is a ViT distilled on AudioSet. Its published ONNX graph takes a raw 16 kHz
-waveform and returns class logits. Nzeve never uses the logits. On first use it
+waveform and returns class logits. Tickover never uses the logits. On first use it
 downloads the graph from Hugging Face at a pinned commit, checks its sha256, and
 adds the transformer's patch tokens as extra graph outputs. Those tokens form a
 time x frequency grid (4 mel bands x 62 frames per 10 s), which is what the drift
@@ -24,7 +24,7 @@ MODELS = {
     "ced-tiny": ("mispeech/ced-tiny", "ace276d29dd0bb3f3517b0fa8cf300738c409019",
                  "3890f227660be71886ff48633d11a731993e0206db8a486781412c28a0873435", 192),
 }
-DEFAULT = os.environ.get("NZEVE_ENCODER", "ced-base")
+DEFAULT = os.environ.get("TICKOVER_ENCODER", "ced-base")
 LAYERS = {"L5": "layer_norm_10", "L8": "layer_norm_16", "L12": "layer_norm_24"}
 N_BANDS = 4
 CLIP = 160_000  # 10 s at 16 kHz, the encoder's native window

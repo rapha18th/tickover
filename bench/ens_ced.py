@@ -3,7 +3,7 @@ from sklearn.metrics import roc_auc_score
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
 from bench.fewshot import clips, DATA, CACHE, MACHINES, _l2
 from bench.ens_test import loo_z, mn_frame, mn_pooled, ced_fn, feats
-from nzeve_core import engine as E
+from tickover_core import engine as E
 
 def tok_frame(enr, tst, q=0.9):
     """Per-band token 1-NN, centred; q-quantile over (time, band) tokens."""

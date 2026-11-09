@@ -14,9 +14,9 @@ import numpy as np
 def data_dir() -> Path:
     try:
         from plugins.plugin_storage import plugin_data_dir  # type: ignore
-        p = Path(plugin_data_dir("nzeve"))
+        p = Path(plugin_data_dir("tickover"))
     except Exception:  # outside Hermes (CLI, tests)
-        p = Path(os.environ.get("NZEVE_HOME") or Path.home() / ".nzeve")
+        p = Path(os.environ.get("TICKOVER_HOME") or Path.home() / ".tickover")
     p.mkdir(parents=True, exist_ok=True)
     return p
 
@@ -43,7 +43,7 @@ def save_bank(name: str, bank: dict, meta: dict) -> None:
 def load_bank(name: str) -> tuple[dict, dict]:
     d = data_dir() / "machines" / slug(name)
     if not (d / "bank.npz").exists():
-        raise KeyError(f"no machine named '{name}'. Enroll it first with nzeve_enroll.")
+        raise KeyError(f"no machine named '{name}'. Enroll it first with tickover_enroll.")
     z = np.load(d / "bank.npz")
     return {k: z[k] for k in z.files}, json.loads((d / "machine.json").read_text())
 

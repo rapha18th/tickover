@@ -139,7 +139,7 @@ def enroll(machine: str, paths: list[str], append: bool = False) -> dict:
     store.save_bank(machine, _pack(F, (med, mad)), {**meta, "ready": True})
     return {"ok": True, "machine": machine, "ready": True, "n_clips": n, "skipped": skipped,
             "healthy_spread_sigma": round(float(np.max(np.abs(zl))), 2),
-            "message": f"Enrolled {n} healthy clips. Nzeve now knows how '{machine}' sounds."}
+            "message": f"Enrolled {n} healthy clips. Tickover now knows how '{machine}' sounds."}
 
 
 def check(machine: str, path: str, out_png: str | None = None, recorded_at: float | None = None) -> dict:
@@ -185,7 +185,7 @@ def check(machine: str, path: str, out_png: str | None = None, recorded_at: floa
             "segments_scored": len(segs), "card": png,
             "how_to_read": "drift_sigma is robust sigmas from this machine's own healthy recordings. "
                            "Under 2 is normal variation, 2-3 is worth watching, 3 and above is a real change. "
-                           "Nzeve detects change. It does not name the fault."}
+                           "Tickover detects change. It does not name the fault."}
 
 
 # ---------------------------------------------------------------- storage packing

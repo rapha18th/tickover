@@ -3,7 +3,7 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hermes-nzeve"
+name = "hermes-tickover"
 version = "0.2.0"
 description = "Hermes plugin: a weekly listening routine for machines with no sensors."
 readme = "README.md"
@@ -24,16 +24,16 @@ mic = ["sounddevice>=0.4,<0.6"]
 dev = ["pytest>=8,<10", "scikit-learn>=1.4,<2", "pyyaml>=6,<7"]
 
 [project.scripts]
-nzeve = "nzeve_core.__main__:main"
+tickover = "tickover_core.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/rapha18th/nzeve"
+Homepage = "https://github.com/rapha18th/tickover"
 
 [tool.setuptools.packages.find]
-include = ["nzeve_core*"]
+include = ["tickover_core*"]
 
 [tool.setuptools.package-data]
-nzeve_core = ["models/*.onnx"]
+tickover_core = ["models/*.onnx"]
 
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"

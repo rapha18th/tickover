@@ -10,7 +10,7 @@ import glob, json, os, re, sys
 import numpy as np
 from sklearn.metrics import roc_auc_score
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
-from nzeve_core import engine as E, audio
+from tickover_core import engine as E, audio
 from bench.fewshot import clips, DATA, CACHE, MACHINES
 
 def fused(F, enr, idx):

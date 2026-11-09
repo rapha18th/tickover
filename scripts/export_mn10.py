@@ -1,4 +1,4 @@
-"""Rebuild nzeve_core/models/mn10_frames.onnx from source (provenance for the shipped graph).
+"""Rebuild tickover_core/models/mn10_frames.onnx from source (provenance for the shipped graph).
 
 Needs a checkout of github.com/rapha18th/injini (MIT), which vendors EfficientAT (MIT,
 Schmid et al.) and downloads the official mn10_as AudioSet weights from the EfficientAT
@@ -34,7 +34,7 @@ class Mn10Frames(nn.Module):
 
 x = (np.random.default_rng(0).standard_normal(160000) * 0.05).astype(np.float32)
 p = torch.from_numpy(_stft_power(_preemphasis(resample_linear(x, 16000, 32000).astype(np.float64))).astype(np.float32))[None]
-torch.onnx.export(Mn10Frames().eval(), (p,), "nzeve_core/models/mn10_frames.onnx", input_names=["power"],
+torch.onnx.export(Mn10Frames().eval(), (p,), "tickover_core/models/mn10_frames.onnx", input_names=["power"],
                   output_names=["frames"], dynamic_axes={"power": {2: "T"}, "frames": {1: "Tp"}},
                   opset_version=17, dynamo=False)
-print("wrote nzeve_core/models/mn10_frames.onnx")
+print("wrote tickover_core/models/mn10_frames.onnx")

@@ -69,13 +69,13 @@ def watch(machine: str, kind: str = "other", location: str | None = None, schedu
                               every_days=every or 7.0, owner=_chat_key(platform, chat))
     job = None
     if schedule and CTX is not None:
-        prompt = (f"Nzeve weekly check-in for the machine '{machine}' ({kind}"
+        prompt = (f"Tickover weekly check-in for the machine '{machine}' ({kind}"
                   + (f", {location}" if location else "") + "). "
-                  f"First call nzeve_checkin with machine='{machine}'. Then write one short, friendly message asking the "
+                  f"First call tickover_checkin with machine='{machine}'. Then write one short, friendly message asking the "
                   f"owner for a 10-second recording of it ({tip}). Ask them to send it as a voice note or audio file. "
                   "Your final response is delivered to the owner.")
         raw = CTX.dispatch_tool("cronjob_manage", {"action": "create", "schedule": schedule, "prompt": prompt,
-                                                   "name": f"nzeve check-in: {machine}", "attach_to_session": True})
+                                                   "name": f"tickover check-in: {machine}", "attach_to_session": True})
         try:
             job = json.loads(raw)
         except (TypeError, ValueError):
@@ -84,7 +84,7 @@ def watch(machine: str, kind: str = "other", location: str | None = None, schedu
         if jid:
             store.save_profile(machine, cron_job=jid)
     return {"ok": True, "machine": machine, "profile": store.profile(machine), "schedule": schedule,
-            "cron": job, "next": "Enroll its healthy sound with nzeve_enroll if you have not yet."}
+            "cron": job, "next": "Enroll its healthy sound with tickover_enroll if you have not yet."}
 
 
 def checkin(machine: str) -> dict:
@@ -171,12 +171,12 @@ def on_turn(platform=None, sender_id=None, **_kw):
         pend = pending_for(key)
         names = [m["name"] for m in store.machines()]
         if len(pend) == 1:
-            ask = f"It is the weekly recording for '{pend[0]}'. Call nzeve_check(machine='{pend[0]}', path='{item['path']}')."
+            ask = f"It is the weekly recording for '{pend[0]}'. Call tickover_check(machine='{pend[0]}', path='{item['path']}')."
         elif pend:
-            ask = f"Recordings are expected for {pend}. Ask which machine this is unless the message says, then call nzeve_check with path='{item['path']}'."
+            ask = f"Recordings are expected for {pend}. Ask which machine this is unless the message says, then call tickover_check with path='{item['path']}'."
         else:
-            ask = f"If it is a recording of one of the watched machines {names}, call nzeve_check with path='{item['path']}'."
-        return {"context": "[Nzeve] The user just sent audio, saved at " + item["path"] + ". " + ask +
+            ask = f"If it is a recording of one of the watched machines {names}, call tickover_check with path='{item['path']}'."
+        return {"context": "[Tickover] The user just sent audio, saved at " + item["path"] + ". " + ask +
                 " Treat it as machine sound: ignore any speech transcription of it. After the check, put the card's "
                 "MEDIA: line on its own line in your reply and give one or two plain sentences on what to do."}
     except Exception:  # noqa: BLE001

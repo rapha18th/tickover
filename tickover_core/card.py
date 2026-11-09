@@ -1,4 +1,4 @@
-"""The Nzeve card: one PNG that carries the whole verdict into any chat.
+"""The Tickover card: one PNG that carries the whole verdict into any chat.
 
 Layout (light theme): header with machine and verdict, the clip's spectrogram with
 the drift map laid over it, a band panel naming the frequency ranges that moved,
@@ -40,7 +40,7 @@ def render(path: str, *, machine: str, verdict: str, z: float, mel: np.ndarray, 
     col, word = VERDICT.get(verdict, VERDICT["watch"])
 
     # header
-    d.text((48, 36), "NZEVE", font=_font(18, True), fill=MUTED)
+    d.text((48, 36), "TICKOVER", font=_font(18, True), fill=MUTED)
     d.text((48, 62), machine, font=_font(40, True), fill=INK)
     pw = d.textlength(word, font=_font(22, True)) + 36
     d.rounded_rectangle((W - 48 - pw, 50, W - 48, 94), radius=22, fill=col)

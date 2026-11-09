@@ -1,6 +1,6 @@
-"""Earshot: Hermes hears when a machine drifts from its own healthy sound.
+"""Tickover: a weekly listening routine for machines with no sensors.
 
-Registers the earshot_* tools and the earshot skill. numpy and onnxruntime load
+Registers the tickover_* tools, two hooks that route chat voice notes, and the tickover skill. numpy and onnxruntime load
 when a tool runs, never at registration.
 """
 
@@ -17,8 +17,8 @@ def register(ctx) -> None:
             if (child / "SKILL.md").is_file():
                 ctx.register_skill(child.name, child / "SKILL.md")
     try:
-        from nzeve_core.tools import register_tools
+        from tickover_core.tools import register_tools
     except ImportError:
         sys.path.insert(0, str(_ROOT))
-        from nzeve_core.tools import register_tools
+        from tickover_core.tools import register_tools
     register_tools(ctx)

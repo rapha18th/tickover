@@ -11,7 +11,7 @@ from sklearn.metrics import roc_auc_score
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
 from bench.fewshot import DATA, CACHE, MACHINES
 from bench.eval_ship import fused
-from nzeve_core import engine as E
+from tickover_core import engine as E
 
 out = collections.defaultdict(list)
 for m in MACHINES:

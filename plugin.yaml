@@ -1,4 +1,4 @@
-name: nzeve
+name: tickover
 version: "0.2.0"
 description: >-
   A listening routine for machines with no sensors. Hermes learns a generator,
@@ -6,10 +6,11 @@ description: >-
   its owner every week on Telegram or WhatsApp for a 10-second voice note,
   checks it against that machine's own normal, tracks the drift trend, forecasts
   when it crosses the alert line, and sends a fleet card. Frozen CED and
-  EfficientAT encoders in onnxruntime, few-shot, local. Nzeve is Shona for ear.
+  EfficientAT encoders in onnxruntime, few-shot, local.
+  Tickover is what mechanics call an engine at idle.
 author: rapha18th
 license: MIT
-homepage: https://github.com/rapha18th/nzeve
+homepage: https://github.com/rapha18th/tickover
 tags:
   - audio
   - predictive-maintenance
@@ -20,12 +21,12 @@ manifest_version: 2
 api_version: 1
 requires_hermes: ">=0.23.0"
 provides_tools:
-  - nzeve_enroll
-  - nzeve_check
-  - nzeve_watch
-  - nzeve_checkin
-  - nzeve_fleet
-  - nzeve_listen
+  - tickover_enroll
+  - tickover_check
+  - tickover_watch
+  - tickover_checkin
+  - tickover_fleet
+  - tickover_listen
 provides_hooks:
   - pre_gateway_dispatch
   - pre_llm_call

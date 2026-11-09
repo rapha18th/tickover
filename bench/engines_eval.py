@@ -3,7 +3,7 @@ import glob, os, sys, re
 import numpy as np
 from sklearn.metrics import roc_auc_score
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
-from nzeve_core import audio, encoder, engine as E
+from tickover_core import audio, encoder, engine as E
 
 D = r"C:\Users\USER\Projects\earshot-data\engines\hf_car\MyDataSet"
 layer = sys.argv[1] if len(sys.argv) > 1 else "L8"
