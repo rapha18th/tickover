@@ -4,7 +4,7 @@
 
 Robots, drones, printers, fans, pumps and engines announce trouble in sound first. Earshot gives Hermes that sense. Record a machine while it is healthy, a phone voice note is enough, and Earshot learns its sound. Every later recording gets a verdict: how far it sits from that machine's own normal, which frequency bands moved, and a card that shows where.
 
-![Earshot card](docs/screenshots/card-misfire.png)
+![Earshot in Hermes Desktop: a drone's hover drifted](docs/screenshots/desktop-drone.png)
 
 ```
 You     [sends healthy recordings of the car at idle]
