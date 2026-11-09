@@ -1,0 +1,29 @@
+done RoboticArm
+done HoveringDrone
+done BrushlessMotor
+done 3DPrinter
+done AirCompressor
+dcase    ced_only     k= 3 AUC 0.503 pAUC 0.510 false@3σ 0.044  RoboticA=0.501 Hovering=0.400 Brushles=0.547 3DPrinte=0.549 AirCompr=0.518
+dcase    ced_only     k= 5 AUC 0.549 pAUC 0.518 false@3σ 0.020  RoboticA=0.523 Hovering=0.640 Brushles=0.509 3DPrinte=0.544 AirCompr=0.531
+dcase    ced_only     k=10 AUC 0.558 pAUC 0.517 false@3σ 0.025  RoboticA=0.544 Hovering=0.578 Brushles=0.523 3DPrinte=0.607 AirCompr=0.537
+dcase    earshot      k= 3 AUC 0.560 pAUC 0.520 false@3σ 0.076  RoboticA=0.530 Hovering=0.592 Brushles=0.548 3DPrinte=0.665 AirCompr=0.465
+dcase    earshot      k= 5 AUC 0.562 pAUC 0.515 false@3σ 0.033  RoboticA=0.550 Hovering=0.659 Brushles=0.503 3DPrinte=0.653 AirCompr=0.446
+dcase    earshot      k=10 AUC 0.586 pAUC 0.529 false@3σ 0.024  RoboticA=0.563 Hovering=0.677 Brushles=0.503 3DPrinte=0.703 AirCompr=0.481
+dcase    mn10_clip    k= 3 AUC 0.543 pAUC 0.516 false@3σ 0.223  RoboticA=0.529 Hovering=0.563 Brushles=0.522 3DPrinte=0.631 AirCompr=0.468
+dcase    mn10_clip    k= 5 AUC 0.526 pAUC 0.508 false@3σ 0.117  RoboticA=0.522 Hovering=0.574 Brushles=0.463 3DPrinte=0.616 AirCompr=0.453
+dcase    mn10_clip    k=10 AUC 0.564 pAUC 0.523 false@3σ 0.077  RoboticA=0.534 Hovering=0.634 Brushles=0.480 3DPrinte=0.689 AirCompr=0.484
+dcase    mn10_frames  k= 3 AUC 0.558 pAUC 0.520 false@3σ 0.022  RoboticA=0.525 Hovering=0.630 Brushles=0.545 3DPrinte=0.673 AirCompr=0.418
+dcase    mn10_frames  k= 5 AUC 0.553 pAUC 0.511 false@3σ 0.030  RoboticA=0.532 Hovering=0.617 Brushles=0.524 3DPrinte=0.686 AirCompr=0.404
+dcase    mn10_frames  k=10 AUC 0.572 pAUC 0.523 false@3σ 0.021  RoboticA=0.559 Hovering=0.641 Brushles=0.522 3DPrinte=0.689 AirCompr=0.450
+engines  ced_only     k= 3 AUC 0.773 pAUC 0.649 false@3σ 0.192  misfire=0.636 tappet_i=0.831 belt_iss=0.853
+engines  ced_only     k= 5 AUC 0.782 pAUC 0.641 false@3σ 0.197  misfire=0.635 tappet_i=0.837 belt_iss=0.874
+engines  ced_only     k=10 AUC 0.860 pAUC 0.713 false@3σ 0.088  misfire=0.719 tappet_i=0.913 belt_iss=0.946
+engines  earshot      k= 3 AUC 0.809 pAUC 0.652 false@3σ 0.195  misfire=0.700 tappet_i=0.764 belt_iss=0.965
+engines  earshot      k= 5 AUC 0.847 pAUC 0.672 false@3σ 0.181  misfire=0.770 tappet_i=0.810 belt_iss=0.960
+engines  earshot      k=10 AUC 0.887 pAUC 0.721 false@3σ 0.071  misfire=0.810 tappet_i=0.870 belt_iss=0.980
+engines  mn10_clip    k= 3 AUC 0.752 pAUC 0.623 false@3σ 0.261  misfire=0.658 tappet_i=0.671 belt_iss=0.926
+engines  mn10_clip    k= 5 AUC 0.817 pAUC 0.633 false@3σ 0.127  misfire=0.754 tappet_i=0.754 belt_iss=0.943
+engines  mn10_clip    k=10 AUC 0.854 pAUC 0.680 false@3σ 0.105  misfire=0.793 tappet_i=0.809 belt_iss=0.960
+engines  mn10_frames  k= 3 AUC 0.766 pAUC 0.596 false@3σ 0.206  misfire=0.704 tappet_i=0.684 belt_iss=0.910
+engines  mn10_frames  k= 5 AUC 0.790 pAUC 0.604 false@3σ 0.142  misfire=0.744 tappet_i=0.699 belt_iss=0.926
+engines  mn10_frames  k=10 AUC 0.818 pAUC 0.652 false@3σ 0.108  misfire=0.767 tappet_i=0.730 belt_iss=0.957

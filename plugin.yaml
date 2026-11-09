@@ -1,0 +1,35 @@
+name: earshot
+version: "0.1.0"
+description: >-
+  Hermes hears when a machine drifts from its own healthy sound. Enroll a
+  robot joint, drone, fan, printer, pump or engine from a few healthy
+  recordings (a phone voice note works), then check new ones: drift in robust
+  sigmas, the frequency bands that moved, and a spectrogram card in chat.
+  Frozen CED + EfficientAT encoders in onnxruntime, few-shot, local.
+author: rapha18th
+license: MIT
+homepage: https://github.com/rapha18th/earshot
+tags:
+  - audio
+  - anomaly-detection
+  - robotics
+  - predictive-maintenance
+  - skills
+manifest_version: 2
+api_version: 1
+requires_hermes: ">=0.23.0"
+provides_tools:
+  - earshot_enroll
+  - earshot_check
+  - earshot_listen
+  - earshot_status
+provides_hooks: []
+provides_middleware: []
+requires_env: []
+# Kept in step with pyproject.toml. pyproject.toml is what Hermes installs.
+python_dependencies:
+  - "numpy>=1.26,<3"
+  - "onnxruntime>=1.17,<2"
+  - "onnx>=1.15,<2"
+  - "soundfile>=0.12,<0.15"
+  - "Pillow>=10.1,<14"

@@ -1,0 +1,866 @@
+[
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.53008,
+  "pauc": 0.5250526315789473,
+  "fa": 0.24
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.50096,
+  "pauc": 0.5061052631578947,
+  "fa": 0.156
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.52904,
+  "pauc": 0.5187368421052632,
+  "fa": 0.27599999999999997
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.52544,
+  "pauc": 0.5145263157894737,
+  "fa": 0.05600000000000001
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.5496800000000001,
+  "pauc": 0.512421052631579,
+  "fa": 0.052000000000000005
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.5230400000000001,
+  "pauc": 0.5073684210526316,
+  "fa": 0.08399999999999999
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.52216,
+  "pauc": 0.5098947368421053,
+  "fa": 0.124
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.53232,
+  "pauc": 0.5145263157894738,
+  "fa": 0.012
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.5632,
+  "pauc": 0.536,
+  "fa": 0.004
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.5436799999999999,
+  "pauc": 0.5136842105263157,
+  "fa": 0.11600000000000002
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.53416,
+  "pauc": 0.5187368421052632,
+  "fa": 0.008
+ },
+ {
+  "set": "dcase",
+  "machine": "RoboticArm",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.55896,
+  "pauc": 0.5334736842105263,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.59168,
+  "pauc": 0.4905263157894737,
+  "fa": 0.02
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.39968,
+  "pauc": 0.4955789473684211,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.5632,
+  "pauc": 0.4926315789473684,
+  "fa": 0.08399999999999999
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.6296,
+  "pauc": 0.504842105263158,
+  "fa": 0.012
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.6585599999999999,
+  "pauc": 0.4947368421052632,
+  "fa": 0.024
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.6395199999999999,
+  "pauc": 0.5397894736842105,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.57416,
+  "pauc": 0.4943157894736842,
+  "fa": 0.068
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.6172,
+  "pauc": 0.4997894736842105,
+  "fa": 0.036
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.6767199999999999,
+  "pauc": 0.4934736842105263,
+  "fa": 0.052000000000000005
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.5784,
+  "pauc": 0.5284210526315789,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.63376,
+  "pauc": 0.5006315789473684,
+  "fa": 0.072
+ },
+ {
+  "set": "dcase",
+  "machine": "HoveringDrone",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.6413599999999999,
+  "pauc": 0.4905263157894736,
+  "fa": 0.028000000000000004
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.54832,
+  "pauc": 0.5263157894736843,
+  "fa": 0.024
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.5471999999999999,
+  "pauc": 0.5069473684210527,
+  "fa": 0.064
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.52192,
+  "pauc": 0.5061052631578947,
+  "fa": 0.348
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.54512,
+  "pauc": 0.5566315789473684,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.5026400000000001,
+  "pauc": 0.5199999999999999,
+  "fa": 0.008
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.5087999999999999,
+  "pauc": 0.4947368421052632,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.46335999999999994,
+  "pauc": 0.488,
+  "fa": 0.132
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.52376,
+  "pauc": 0.5284210526315789,
+  "fa": 0.036
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.50336,
+  "pauc": 0.5006315789473683,
+  "fa": 0.008
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.52288,
+  "pauc": 0.4871578947368421,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.47992,
+  "pauc": 0.4846315789473684,
+  "fa": 0.136
+ },
+ {
+  "set": "dcase",
+  "machine": "BrushlessMotor",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.52232,
+  "pauc": 0.5338947368421052,
+  "fa": 0.008
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.66496,
+  "pauc": 0.5684210526315789,
+  "fa": 0.008
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.5492800000000001,
+  "pauc": 0.5103157894736842,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.63136,
+  "pauc": 0.5663157894736843,
+  "fa": 0.21200000000000002
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.6731999999999999,
+  "pauc": 0.5410526315789473,
+  "fa": 0.02
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.65272,
+  "pauc": 0.5578947368421053,
+  "fa": 0.039999999999999994
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.5439200000000001,
+  "pauc": 0.5107368421052633,
+  "fa": 0.004
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.6156,
+  "pauc": 0.5591578947368421,
+  "fa": 0.16
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.68632,
+  "pauc": 0.528842105263158,
+  "fa": 0.044
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.70312,
+  "pauc": 0.6134736842105263,
+  "fa": 0.004
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.60728,
+  "pauc": 0.5381052631578948,
+  "fa": 0.004
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.6888799999999999,
+  "pauc": 0.6113684210526316,
+  "fa": 0.04
+ },
+ {
+  "set": "dcase",
+  "machine": "3DPrinter",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.6891999999999999,
+  "pauc": 0.5709473684210525,
+  "fa": 0.036
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.46487999999999996,
+  "pauc": 0.4901052631578947,
+  "fa": 0.08800000000000001
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.51848,
+  "pauc": 0.5317894736842106,
+  "fa": 0.0
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.46784,
+  "pauc": 0.4943157894736842,
+  "fa": 0.196
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.41784,
+  "pauc": 0.4829473684210527,
+  "fa": 0.02
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.44616,
+  "pauc": 0.4922105263157895,
+  "fa": 0.04
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.53096,
+  "pauc": 0.5397894736842106,
+  "fa": 0.012
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.45272000000000007,
+  "pauc": 0.4892631578947368,
+  "fa": 0.1
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.404,
+  "pauc": 0.4837894736842105,
+  "fa": 0.024
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.48127999999999993,
+  "pauc": 0.49936842105263163,
+  "fa": 0.052000000000000005
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.53728,
+  "pauc": 0.5170526315789473,
+  "fa": 0.004
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.48448,
+  "pauc": 0.4976842105263158,
+  "fa": 0.128
+ },
+ {
+  "set": "dcase",
+  "machine": "AirCompressor",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.44960000000000006,
+  "pauc": 0.4863157894736842,
+  "fa": 0.032
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.6997297297297298,
+  "pauc": 0.5762505926979611,
+  "fa": 0.195
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.7638970588235294,
+  "pauc": 0.5429566563467493,
+  "fa": 0.195
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "earshot",
+  "k": 3,
+  "auc": 0.9647033898305084,
+  "pauc": 0.8370874219446922,
+  "fa": 0.195
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.6363626126126126,
+  "pauc": 0.5527501185395922,
+  "fa": 0.19249999999999998
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.8310110294117647,
+  "pauc": 0.6620549535603716,
+  "fa": 0.19249999999999998
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "ced_only",
+  "k": 3,
+  "auc": 0.8525847457627119,
+  "pauc": 0.731378233719893,
+  "fa": 0.19249999999999998
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.6583558558558559,
+  "pauc": 0.5334281650071124,
+  "fa": 0.26125
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.671360294117647,
+  "pauc": 0.5153831269349844,
+  "fa": 0.26125
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "mn10_clip",
+  "k": 3,
+  "auc": 0.925656779661017,
+  "pauc": 0.8201382694023194,
+  "fa": 0.26125
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.7042454954954954,
+  "pauc": 0.5812588904694168,
+  "fa": 0.20625
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.6836029411764705,
+  "pauc": 0.5306695046439629,
+  "fa": 0.20625
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "mn10_frames",
+  "k": 3,
+  "auc": 0.91010593220339,
+  "pauc": 0.6767395182872435,
+  "fa": 0.20625
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.7704030954030955,
+  "pauc": 0.6043160569476359,
+  "fa": 0.18076923076923077
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.8100301659125189,
+  "pauc": 0.5909343494482813,
+  "fa": 0.18076923076923077
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "earshot",
+  "k": 5,
+  "auc": 0.9600391134289439,
+  "pauc": 0.8197579999542534,
+  "fa": 0.18076923076923077
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.6347944097944097,
+  "pauc": 0.5601646180593549,
+  "fa": 0.19743589743589743
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.8372926093514328,
+  "pauc": 0.6483686592045725,
+  "fa": 0.19743589743589743
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "ced_only",
+  "k": 5,
+  "auc": 0.8743372446762278,
+  "pauc": 0.7150209291154875,
+  "fa": 0.19743589743589743
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.7544871794871795,
+  "pauc": 0.5501331290804974,
+  "fa": 0.12692307692307692
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.7542420814479639,
+  "pauc": 0.5333214257362864,
+  "fa": 0.12692307692307692
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "mn10_clip",
+  "k": 5,
+  "auc": 0.9433289873967841,
+  "pauc": 0.8164642375168689,
+  "fa": 0.12692307692307692
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.7443578193578194,
+  "pauc": 0.5854956170745644,
+  "fa": 0.1423076923076923
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.6991138763197587,
+  "pauc": 0.5307811383662776,
+  "fa": 0.1423076923076923
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "mn10_frames",
+  "k": 5,
+  "auc": 0.9259669708822249,
+  "pauc": 0.6956243280953361,
+  "fa": 0.1423076923076923
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.8102431198321609,
+  "pauc": 0.6346216800795027,
+  "fa": 0.07123287671232877
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.8699033037872684,
+  "pauc": 0.6355443403028118,
+  "fa": 0.07123287671232877
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "earshot",
+  "k": 10,
+  "auc": 0.9798467610866032,
+  "pauc": 0.8942236017254652,
+  "fa": 0.07123287671232877
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.719276811057633,
+  "pauc": 0.5805871119858144,
+  "fa": 0.08767123287671233
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.9132755842062853,
+  "pauc": 0.7412528097035498,
+  "fa": 0.08767123287671233
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "ced_only",
+  "k": 10,
+  "auc": 0.9462502902252148,
+  "pauc": 0.816418804149915,
+  "fa": 0.08767123287671233
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.7930025916327288,
+  "pauc": 0.5889826380093143,
+  "fa": 0.10547945205479455
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.8087328767123289,
+  "pauc": 0.5838139870223504,
+  "fa": 0.10547945205479455
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "mn10_clip",
+  "k": 10,
+  "auc": 0.960366844671465,
+  "pauc": 0.8661664609631812,
+  "fa": 0.10547945205479455
+ },
+ {
+  "set": "engines",
+  "machine": "misfire",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.7674318153770208,
+  "pauc": 0.6080558207811271,
+  "fa": 0.10821917808219177
+ },
+ {
+  "set": "engines",
+  "machine": "tappet_issue",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.7297945205479452,
+  "pauc": 0.5581343568429535,
+  "fa": 0.10821917808219177
+ },
+ {
+  "set": "engines",
+  "machine": "belt_issue",
+  "system": "mn10_frames",
+  "k": 10,
+  "auc": 0.9573949384722547,
+  "pauc": 0.7904635049429937,
+  "fa": 0.10821917808219177
+ }
+]

@@ -1,0 +1,5 @@
+bench/cache/
+__pycache__/
+.notes/
+*.npz
+bench/log_*.txt
