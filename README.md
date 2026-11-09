@@ -170,7 +170,7 @@ Ten random draws per question, scored on recordings it never saw:
 | Car engine fault, 4 states | 5 | 2 of 10 | 44 of 64 | 1 |
 | 3D printer, robot arm, compressor, pump fault, fan fault | 5 | 0 of 10 each | | |
 
-The answers that are neither right nor wrong are `uncertain` or `unknown`. These runs predate a stricter per-state gate that is now in the code, so today it switches on less often. Treat teach as a preview.
+The answers that are neither right nor wrong are `uncertain` or `unknown`. Treat teach as a preview.
 
 ## How it works
 
