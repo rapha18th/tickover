@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
 from bench.fewshot import clips, DATA, CACHE, MACHINES, score_pooled_raw, score_frame_knn
-from earshot_core import engine as E
+from nzeve_core import engine as E
 
 def feats(name, m):
     z = np.load(os.path.join(CACHE, f"{name}__{m}.npz"))

@@ -37,7 +37,7 @@ def segments(x: np.ndarray, seconds: float = 10.0, min_seconds: float = 2.0) -> 
     """Cut a long recording into clip-length segments, so one minute of healthy sound enrolls six clips."""
     n, m = int(seconds * SR), int(min_seconds * SR)
     if len(x) < m:
-        raise ValueError(f"clip is {len(x)/SR:.1f} s; Earshot needs at least {min_seconds:.0f} s of sound")
+        raise ValueError(f"clip is {len(x)/SR:.1f} s; Nzeve needs at least {min_seconds:.0f} s of sound")
     if len(x) <= n * 1.5:
         return [x]
     return [x[s:s + n] for s in range(0, len(x) - m + 1, n) if len(x[s:s + n]) >= m]

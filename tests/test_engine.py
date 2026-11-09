@@ -9,19 +9,19 @@ import soundfile as sf
 
 @pytest.fixture(autouse=True)
 def _home(tmp_path_factory, monkeypatch):
-    shared = os.environ.get("EARSHOT_TEST_HOME") or str(tmp_path_factory.getbasetemp() / "home")
-    monkeypatch.setenv("EARSHOT_HOME", shared)
+    shared = os.environ.get("NZEVE_TEST_HOME") or str(tmp_path_factory.getbasetemp() / "home")
+    monkeypatch.setenv("NZEVE_HOME", shared)
 
 
 def test_selftest_separates_fault():
-    from earshot_core import selftest
+    from nzeve_core import selftest
     r = selftest.run(verbose=False)
     assert r["ok"], r
     assert r["faulty_clip"]["most_changed_band"] == "3.9-8 kHz"
 
 
 def test_insufficient_baseline(tmp_path):
-    from earshot_core import engine, selftest
+    from nzeve_core import engine, selftest
     p = tmp_path / "one.wav"
     sf.write(p, selftest.fan(seed=1), 16000)
     r = engine.enroll("lonely pump", [str(p)])
@@ -31,7 +31,7 @@ def test_insufficient_baseline(tmp_path):
 
 
 def test_long_recording_splits(tmp_path):
-    from earshot_core import engine, selftest
+    from nzeve_core import engine, selftest
     p = tmp_path / "long.wav"
     sf.write(p, np.concatenate([selftest.fan(seed=i) for i in range(4)]), 16000)
     r = engine.enroll("long fan", [str(p)])
@@ -39,7 +39,7 @@ def test_long_recording_splits(tmp_path):
 
 
 def test_tools_return_json_errors():
-    from earshot_core import tools
+    from nzeve_core import tools
     out = json.loads(tools.check_tool({"machine": "nope", "path": "missing.wav"}))
     assert out["ok"] is False
     out = json.loads(tools.check_tool({"machine": "never enrolled", "path": __file__}))
@@ -48,13 +48,13 @@ def test_tools_return_json_errors():
 
 def test_plugin_manifest_matches_tools():
     import yaml
-    from earshot_core import tools
+    from nzeve_core import tools
     m = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), os.pardir, "plugin.yaml")))
     assert sorted(m["provides_tools"]) == sorted(t["name"] for t in tools.tool_specs())
 
 
 def test_too_short(tmp_path):
-    from earshot_core import engine
+    from nzeve_core import engine
     p = tmp_path / "blip.wav"
     sf.write(p, np.zeros(8000, np.float32), 16000)
     with pytest.raises(ValueError):
@@ -70,25 +70,63 @@ def test_register_with_stub_context():
 
     class Ctx:
         def __init__(self):
-            self.tools, self.skills = {}, {}
+            self.tools, self.skills, self.hooks, self.dispatched = {}, {}, {}, []
 
         def register_tool(self, name, toolset, schema, handler, **kw):
-            assert toolset == "earshot" and schema["name"] == name and callable(handler)
+            assert toolset == "nzeve" and schema["name"] == name and callable(handler)
             self.tools[name] = handler
 
         def register_skill(self, name, path):
             self.skills[name] = path
 
+        def register_hook(self, name, cb, **kw):
+            self.hooks[name] = cb
+
+        def dispatch_tool(self, name, args, **kw):
+            self.dispatched.append((name, args))
+            return json.dumps({"success": True, "job_id": "job123"})
+
     ctx = Ctx()
     mod.register(ctx)
-    assert set(ctx.tools) == {"earshot_enroll", "earshot_check", "earshot_listen", "earshot_status"}
-    assert "earshot" in ctx.skills
-    assert json.loads(ctx.tools["earshot_status"]({}))["ok"] is True
+    assert set(ctx.tools) == {"nzeve_enroll", "nzeve_check", "nzeve_watch", "nzeve_checkin", "nzeve_fleet", "nzeve_listen"}
+    assert "nzeve" in ctx.skills
+    assert set(ctx.hooks) == {"pre_gateway_dispatch", "pre_llm_call"}
+    w = json.loads(ctx.tools["nzeve_watch"]({"machine": "borehole pump", "kind": "pump", "location": "farm"}))
+    assert w["ok"] and ctx.dispatched[0][0] == "cronjob_manage" and ctx.dispatched[0][1]["action"] == "create"
+    assert w["profile"]["cron_job"] == "job123"
+    assert json.loads(ctx.tools["nzeve_fleet"]({}))["ok"] is True
 
 
 def test_paths_accept_glob_and_folder(tmp_path):
-    from earshot_core import selftest, tools
+    from nzeve_core import selftest, tools
     for i in range(3):
         sf.write(tmp_path / f"healthy_{i}.wav", selftest.fan(seed=i), 16000)
     assert len(tools._paths({"paths": [str(tmp_path / "healthy_*.wav")]})) == 3
     assert len(tools._paths({"paths": str(tmp_path)})) == 3
+
+
+def test_trend_forecast():
+    from nzeve_core import trend
+    day = 86400.0
+    h = [{"ts": i * 7 * day, "z": z, "verdict": "healthy"} for i, z in enumerate([0.1, 0.4, 0.9, 1.3, 1.8])]
+    t = trend.analyse(h, now=4 * 7 * day)
+    assert t["state"] == "worsening" and 0 < t["days_to_drift"] < 30 and t["slope_per_week"] > 0.3
+    flat = trend.analyse([{"ts": i * 7 * day, "z": 0.2, "verdict": "healthy"} for i in range(5)], now=4 * 7 * day)
+    assert flat["state"] == "steady" and flat["days_to_drift"] is None
+    late = trend.analyse([{"ts": 0.0, "z": 0.2, "verdict": "healthy"}], every_days=7, now=12 * day)
+    assert late["overdue_days"] == 5.0
+
+
+def test_voice_note_routing_hooks(tmp_path):
+    from types import SimpleNamespace
+    from nzeve_core import agent, store
+    store.save_profile("genset", kind="genset", owner="telegram:42")
+    agent.checkin("genset")
+    ev = SimpleNamespace(media_urls=[str(tmp_path / "v.ogg")], media_types=["audio/ogg"],
+                         source=SimpleNamespace(platform=SimpleNamespace(value="telegram"), chat_id="42", user_id="42"))
+    assert agent.on_inbound(event=ev) is None
+    ctx = agent.on_turn(platform="telegram", sender_id="42")
+    assert "genset" in ctx["context"] and "v.ogg" in ctx["context"]
+    assert agent.on_turn(platform="telegram", sender_id="42") is None   # used once
+    other = SimpleNamespace(media_urls=["x.jpg"], media_types=["image/jpeg"], source=ev.source)
+    assert agent.on_inbound(event=other) is None

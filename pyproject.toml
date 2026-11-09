@@ -3,9 +3,9 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hermes-earshot"
-version = "0.1.0"
-description = "Hermes plugin: hear when a machine drifts from its own healthy sound."
+name = "hermes-nzeve"
+version = "0.2.0"
+description = "Hermes plugin: a weekly listening routine for machines with no sensors."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -24,16 +24,16 @@ mic = ["sounddevice>=0.4,<0.6"]
 dev = ["pytest>=8,<10", "scikit-learn>=1.4,<2", "pyyaml>=6,<7"]
 
 [project.scripts]
-earshot = "earshot_core.__main__:main"
+nzeve = "nzeve_core.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/rapha18th/earshot"
+Homepage = "https://github.com/rapha18th/nzeve"
 
 [tool.setuptools.packages.find]
-include = ["earshot_core*"]
+include = ["nzeve_core*"]
 
 [tool.setuptools.package-data]
-earshot_core = ["models/*.onnx"]
+nzeve_core = ["models/*.onnx"]
 
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"

@@ -1,29 +1,34 @@
-name: earshot
-version: "0.1.0"
+name: nzeve
+version: "0.2.0"
 description: >-
-  Hermes hears when a machine drifts from its own healthy sound. Enroll a
-  robot joint, drone, fan, printer, pump or engine from a few healthy
-  recordings (a phone voice note works), then check new ones: drift in robust
-  sigmas, the frequency bands that moved, and a spectrogram card in chat.
-  Frozen CED + EfficientAT encoders in onnxruntime, few-shot, local.
+  A listening routine for machines with no sensors. Hermes learns a generator,
+  borehole pump, compressor, fan or old car from a few healthy recordings, asks
+  its owner every week on Telegram or WhatsApp for a 10-second voice note,
+  checks it against that machine's own normal, tracks the drift trend, forecasts
+  when it crosses the alert line, and sends a fleet card. Frozen CED and
+  EfficientAT encoders in onnxruntime, few-shot, local. Nzeve is Shona for ear.
 author: rapha18th
 license: MIT
-homepage: https://github.com/rapha18th/earshot
+homepage: https://github.com/rapha18th/nzeve
 tags:
   - audio
-  - anomaly-detection
-  - robotics
   - predictive-maintenance
+  - anomaly-detection
+  - cron
   - skills
 manifest_version: 2
 api_version: 1
 requires_hermes: ">=0.23.0"
 provides_tools:
-  - earshot_enroll
-  - earshot_check
-  - earshot_listen
-  - earshot_status
-provides_hooks: []
+  - nzeve_enroll
+  - nzeve_check
+  - nzeve_watch
+  - nzeve_checkin
+  - nzeve_fleet
+  - nzeve_listen
+provides_hooks:
+  - pre_gateway_dispatch
+  - pre_llm_call
 provides_middleware: []
 requires_env: []
 # Kept in step with pyproject.toml. pyproject.toml is what Hermes installs.

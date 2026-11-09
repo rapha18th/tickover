@@ -14,9 +14,9 @@ import numpy as np
 def data_dir() -> Path:
     try:
         from plugins.plugin_storage import plugin_data_dir  # type: ignore
-        p = Path(plugin_data_dir("earshot"))
+        p = Path(plugin_data_dir("nzeve"))
     except Exception:  # outside Hermes (CLI, tests)
-        p = Path(os.environ.get("EARSHOT_HOME") or Path.home() / ".earshot")
+        p = Path(os.environ.get("NZEVE_HOME") or Path.home() / ".nzeve")
     p.mkdir(parents=True, exist_ok=True)
     return p
 
@@ -43,7 +43,7 @@ def save_bank(name: str, bank: dict, meta: dict) -> None:
 def load_bank(name: str) -> tuple[dict, dict]:
     d = data_dir() / "machines" / slug(name)
     if not (d / "bank.npz").exists():
-        raise KeyError(f"no machine named '{name}'. Enroll it first with earshot_enroll.")
+        raise KeyError(f"no machine named '{name}'. Enroll it first with nzeve_enroll.")
     z = np.load(d / "bank.npz")
     return {k: z[k] for k in z.files}, json.loads((d / "machine.json").read_text())
 
@@ -56,6 +56,7 @@ def machines() -> list[dict]:
         if f.exists():
             m = json.loads(f.read_text())
             m["last"] = last_checks(m["name"], 1)
+            m["profile"] = profile(m["name"])
             out.append(m)
     return out
 
@@ -66,9 +67,27 @@ def _db() -> sqlite3.Connection:
     return c
 
 
-def log_check(machine: str, score: float, z: float, verdict: str, png: str, src: str) -> None:
+def log_check(machine: str, score: float, z: float, verdict: str, png: str, src: str, ts: float | None = None) -> None:
     with _db() as c:
-        c.execute("insert into checks values(?,?,?,?,?,?,?)", (time.time(), slug(machine), score, z, verdict, png, src))
+        c.execute("insert into checks values(?,?,?,?,?,?,?)", (ts or time.time(), slug(machine), score, z, verdict, png, src))
+
+
+def history(machine: str) -> list[dict]:
+    with _db() as c:
+        rows = c.execute("select ts, z, verdict, png, src from checks where machine=? order by ts", (slug(machine),)).fetchall()
+    return [{"ts": r[0], "z": r[1], "verdict": r[2], "png": r[3], "src": r[4]} for r in rows]
+
+
+# ---------------------------------------------------------------- maintenance profile
+def profile(name: str) -> dict:
+    f = data_dir() / "machines" / slug(name) / "profile.json"
+    return json.loads(f.read_text()) if f.exists() else {}
+
+
+def save_profile(name: str, **fields) -> dict:
+    p = {**profile(name), **{k: v for k, v in fields.items() if v is not None}, "name": name}
+    (machine_dir(name) / "profile.json").write_text(json.dumps(p, indent=1))
+    return p
 
 
 def last_checks(machine: str, n: int = 20) -> list[dict]:

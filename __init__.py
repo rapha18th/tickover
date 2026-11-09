@@ -17,8 +17,8 @@ def register(ctx) -> None:
             if (child / "SKILL.md").is_file():
                 ctx.register_skill(child.name, child / "SKILL.md")
     try:
-        from earshot_core.tools import register_tools
+        from nzeve_core.tools import register_tools
     except ImportError:
         sys.path.insert(0, str(_ROOT))
-        from earshot_core.tools import register_tools
+        from nzeve_core.tools import register_tools
     register_tools(ctx)

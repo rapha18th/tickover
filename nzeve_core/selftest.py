@@ -1,4 +1,4 @@
-"""Self-test with synthetic machine sound, so anyone can verify Earshot in a minute with no recordings.
+"""Self-test with synthetic machine sound, so anyone can verify Nzeve in a minute with no recordings.
 
 A "fan" is a rotor hum (fundamental plus harmonics with slow wobble) in broadband noise.
 Healthy clips vary in speed, phase and noise. The faulty clip adds what a failing bearing
@@ -34,7 +34,7 @@ def fan(seconds=10.0, rpm=1800.0, seed=0, fault=False):
 def run(verbose=True) -> dict:
     import soundfile as sf
     from . import engine
-    d = tempfile.mkdtemp(prefix="earshot_selftest_")
+    d = tempfile.mkdtemp(prefix="nzeve_selftest_")
     healthy = []
     for i in range(6):
         p = os.path.join(d, f"healthy_{i}.wav")
@@ -43,7 +43,7 @@ def run(verbose=True) -> dict:
     ok_p, bad_p = os.path.join(d, "check_ok.wav"), os.path.join(d, "check_fault.wav")
     sf.write(ok_p, fan(rpm=1806, seed=42), SR)
     sf.write(bad_p, fan(rpm=1806, seed=43, fault=True), SR)
-    name = "earshot selftest fan"
+    name = "nzeve selftest fan"
     e = engine.enroll(name, healthy)
     a = engine.check(name, ok_p)
     b = engine.check(name, bad_p)

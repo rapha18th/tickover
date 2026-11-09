@@ -1,4 +1,4 @@
-"""earshot CLI: enroll, check, status, listen, selftest. Same engine as the Hermes tools."""
+"""nzeve CLI: enroll, check, status, listen, selftest. Same engine as the Hermes tools."""
 from __future__ import annotations
 
 import argparse
@@ -7,7 +7,7 @@ import sys
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="earshot", description="Hear when a machine drifts from its own healthy sound.")
+    ap = argparse.ArgumentParser(prog="nzeve", description="Hear when a machine drifts from its own healthy sound.")
     sub = ap.add_subparsers(dest="cmd", required=True)
     e = sub.add_parser("enroll"); e.add_argument("machine"); e.add_argument("paths", nargs="+"); e.add_argument("--append", action="store_true")
     c = sub.add_parser("check"); c.add_argument("machine"); c.add_argument("path"); c.add_argument("--png")

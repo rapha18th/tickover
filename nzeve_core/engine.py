@@ -139,10 +139,10 @@ def enroll(machine: str, paths: list[str], append: bool = False) -> dict:
     store.save_bank(machine, _pack(F, (med, mad)), {**meta, "ready": True})
     return {"ok": True, "machine": machine, "ready": True, "n_clips": n, "skipped": skipped,
             "healthy_spread_sigma": round(float(np.max(np.abs(zl))), 2),
-            "message": f"Enrolled {n} healthy clips. Earshot now knows how '{machine}' sounds."}
+            "message": f"Enrolled {n} healthy clips. Nzeve now knows how '{machine}' sounds."}
 
 
-def check(machine: str, path: str, out_png: str | None = None) -> dict:
+def check(machine: str, path: str, out_png: str | None = None, recorded_at: float | None = None) -> dict:
     bank, meta = store.load_bank(machine)
     if not meta.get("ready"):
         return {"ok": True, "machine": machine, "verdict": "insufficient", "n_clips": meta["n_clips"],
@@ -172,9 +172,12 @@ def check(machine: str, path: str, out_png: str | None = None) -> dict:
                 band_labels=encoder.BAND_LABELS, band_z=[float(v) for v in band_z], history=hist,
                 n_enrolled=meta["n_clips"], enrolled_on=time.strftime("%d %b %Y", time.localtime(meta["enrolled_at"])),
                 encoder="CED-base + mn10")
-    store.log_check(machine, float(z[:3].mean()), zz, verdict, png, str(path))
+    store.log_check(machine, float(z[:3].mean()), zz, verdict, png, str(path), ts=recorded_at)
+    from . import trend as _trend
+    prof = store.profile(machine)
+    tr = _trend.analyse(store.history(machine), DRIFT, WATCH, every_days=prof.get("every_days"))
     top = int(np.argmax(band_z))
-    return {"ok": True, "machine": meta["name"], "verdict": verdict, "drift_sigma": round(zz, 2),
+    return {"ok": True, "machine": meta["name"], "verdict": verdict, "drift_sigma": round(zz, 2), "trend": tr,
             "scores_sigma": {"ced_bands": round(float(z[0]), 2), "mn10_clip": round(float(z[1]), 2),
                              "mn10_frames": round(float(z[2]), 2)},
             "bands": {lab: round(float(v), 2) for lab, v in zip(encoder.BAND_LABELS, band_z)},
@@ -182,7 +185,7 @@ def check(machine: str, path: str, out_png: str | None = None) -> dict:
             "segments_scored": len(segs), "card": png,
             "how_to_read": "drift_sigma is robust sigmas from this machine's own healthy recordings. "
                            "Under 2 is normal variation, 2-3 is worth watching, 3 and above is a real change. "
-                           "Earshot detects change. It does not name the fault."}
+                           "Nzeve detects change. It does not name the fault."}
 
 
 # ---------------------------------------------------------------- storage packing
