@@ -130,7 +130,21 @@ def _unattended(m: str, path: str):
     from . import store
     prof = store.profile(m)
     src = str(prof.get("source") or "")
-    if _is_url(path) or not src or _is_url(src):
+    if _is_url(path):
+        from . import audio
+        info = audio.bridge_latest(path)   # a bridge /latest says how old its newest clip is
+        if not info:
+            return None, None
+        if info["stale"]:
+            return {"ok": True, "machine": m, "verdict": "stale", "logged": False, "age_hours": round(info["age_s"] / 3600, 1),
+                    "message": f"The listening device at {audio.redact_url(path)} last recorded {info['age_s'] / 60:.0f} minutes ago. "
+                               "It has stopped recording. Nothing was scored. Tell the owner the device needs attention."}, None
+        at = info["recorded_at"]
+        if at is not None and prof.get("source_mtime") == at:
+            return {"ok": True, "machine": m, "verdict": "same_recording", "logged": False,
+                    "message": "This is the recording that was checked last time. Nothing new to hear yet."}, at
+        return None, at
+    if not src or _is_url(src):
         return None, None
     watched = {os.path.realpath(p) for p in _expand(src)}  # the file itself, or the files in a watched folder
     if os.path.realpath(path) not in watched:
@@ -160,6 +174,10 @@ def _check(m: str, path: str, a: dict) -> dict:
     if mtime is not None:
         from . import store
         store.save_profile(m, source_mtime=mtime)
+    if r.get("verdict") == "drift" and r.get("confirmed"):
+        r["notify"] = agent.notify_for(m, r)   # one path in both modes: a one-shot relay, once per change
+    elif r.get("verdict") == "healthy":
+        agent.notify_clear(m)
     if r.get("verdict") == "healthy" and a.get("add_to_baseline"):
         r["baseline"] = engine.enroll(m, [path], append=True)["message"]
     _show(r)
@@ -219,11 +237,17 @@ def teach_tool(a):
 @_guard
 def watch_tool(a):
     from . import agent
-    src = a.get("source")
+    from . import store
+    m = str(a["machine"])
+    prof = store.profile(m)   # a field left out keeps its saved value, so adding a repairer keeps the routine
+    src = a["source"] if "source" in a else prof.get("source")
     if src and not _is_url(src):
         src = os.path.abspath(os.path.expanduser(str(src)))
-    return agent.watch(str(a["machine"]), a.get("kind", "other"), a.get("location"),
-                       a.get("schedule", "every monday 9am"), a.get("tip"), src or None)
+    return agent.watch(m, a.get("kind") or prof.get("kind") or "other",
+                       a["location"] if "location" in a else prof.get("location"),
+                       a["schedule"] if "schedule" in a else prof.get("schedule", "every monday 9am"),
+                       a["tip"] if "tip" in a else prof.get("tip"), src or None, a.get("notify"), a.get("notify_name"),
+                       a.get("owner_name"))
 
 
 @_guard
@@ -307,8 +331,7 @@ def tool_specs() -> list[dict]:
             "'change': capture again and compare. Or step='clip' with one recording that has the action inside it; it "
             "finds the moment; it needs 9 s or more with at least 4 s on each side of the action. Returns verdict 'confirmed', 'no_change', 'other_change' or 'unclear' (the change sits too close to the edge of the clip), how far the tone and the level "
             "moved in sigmas of the sound's own variation, what appeared or faded, and a PNG card. Needs no baseline. "
-            "Verify hears that the sound changed. It does not prove what changed, and it does not detect faults: use "
-            "tickover_check for that. On no_change, say the action may not have reached the machine or the microphone "
+            "Verify hears that the sound changed. A person confirms what changed. For faults, use tickover_check. On no_change, say the action may not have reached the machine or the microphone "
             "may not hear it; do not claim success. Before and after must come from the same microphone in the same place.",
             {"step": {"type": "string", "enum": ["before", "after", "clip"]},
              "source": {"type": "string", "description": SOURCE + " Use the same source for before and after. Required for clip."},
@@ -365,17 +388,22 @@ def tool_specs() -> list[dict]:
         {"name": "tickover_watch", "handler": watch_tool, "emoji": "🗓️", "schema": _schema(
             "tickover_watch",
             "Put a machine on a listening routine with a Hermes cron job (default every Monday 9am). Two modes. With no "
-            "source, the job asks the owner in this chat for a 10-second recording, and their next voice note is checked "
+            "source, the job asks the owner in this chat for a 12-second recording (checks need 10 s or more), and their next voice note is checked "
             "automatically: for machines with no sensors, such as generators, borehole pumps, compressors, older vehicles. "
             "With a source (a camera or stream URL, or a file a device keeps fresh), the job listens by itself and messages "
-            "the owner only when the sound has changed or the microphone needs attention. Calling it again for the same "
-            "machine replaces the schedule.",
+            "the owner only when the sound has changed or the microphone needs attention. Add notify to tell the person "
+            "who repairs it too, on Telegram or any Hermes channel: they hear only a confirmed change, with the card, once per change. "
+            "Only the owner, in their own chat, can set or change notify or source. "
+            "Calling it again for the same machine replaces the schedule; fields left out keep their saved values.",
             {"machine": MACHINE,
              "kind": {"type": "string", "description": "genset, pump, fan, vehicle, compressor, printer, robot or other."},
              "location": {"type": "string", "description": "Where it is, e.g. 'clinic backyard, Gweru'."},
              "schedule": {"type": "string", "description": "Hermes schedule, e.g. 'every monday 9am', 'every 6 hours', '0 8 * * 1'. Empty for no schedule."},
              "tip": {"type": "string", "description": "How to record this machine, if the default for its kind does not fit."},
-             "source": {"type": "string", "description": "Unattended mode: an rtsp:// or http:// stream, or a file path a recorder overwrites."}},
+             "source": {"type": "string", "description": "Unattended mode: an rtsp:// or http:// stream, or a file path a recorder overwrites. Empty to go back to asking the owner. A Tickover bridge works here: http://IP:8765/clip?key=... records on demand; /latest serves its timed clip and reports when it stops."},
+             "notify": {"type": "string", "description": "Who else hears about a confirmed change: a repairer, technician or expert. A Hermes delivery target platform:chat_id, or a comma list of them, e.g. 'telegram:123456789', 'whatsapp:+263771234567', 'email:tech@example.com'. Empty to stop."},
+             "notify_name": {"type": "string", "description": "Who that is, e.g. 'Tendai, pump technician'. The message greets them by name. Letters, digits, spaces and , . ' - ( ) only."},
+             "owner_name": {"type": "string", "description": "The owner's name as the repairer knows them. The message says whose machine it is. Defaults to the chat user's name."}},
             ["machine"])},
         {"name": "tickover_checkin", "handler": checkin_tool, "emoji": "📨", "schema": _schema(
             "tickover_checkin",

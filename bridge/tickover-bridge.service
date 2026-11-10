@@ -1,0 +1,30 @@
+[Unit]
+Description=Tickover bridge: a microphone Hermes can listen to
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tickover
+Group=audio
+EnvironmentFile=-/etc/default/tickover-bridge
+ExecStart=/usr/bin/python3 /opt/tickover-bridge/tickover_bridge.py --quiet $TICKOVER_BRIDGE_ARGS
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+# arecord needs /dev/snd, so PrivateDevices stays off.
+TasksMax=64
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

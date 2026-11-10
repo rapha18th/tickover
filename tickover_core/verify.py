@@ -318,6 +318,8 @@ def after(source: str | None = None, seconds: float = 6.0, expect: str = "change
 def clip(path: str, expect: str = "change", label: str | None = None, machine: str | None = None) -> dict:
     """One recording with the action inside it: find the moment and compare the two sides."""
     expect = _expect(expect)
+    if audio.is_url(path):
+        path = audio.bridge_clip_url(path, 30)   # a bridge /clip records 10 s unless asked for more
     x = audio.load(path, max_seconds=MAX_SECONDS, url_seconds=30.0)
     cut, m = search(x)
     out = _judge(x[:cut], x[cut:], m, True, expect, label, machine,

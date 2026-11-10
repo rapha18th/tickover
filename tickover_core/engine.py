@@ -35,6 +35,7 @@ GAMMA = 10.0
 CED_LAYER = "L5"
 MIN_CLIPS = 3
 WATCH, DRIFT = 2.0, 3.0
+CHECK_MIN_S = 10.0  # the baseline is built from 10-second clips; 9.9 s already scores as change
 FLOOR = 0.15  # MAD floor as a fraction of the median: few-shot spreads are noisy
 LEVEL_SHIFT_DB = 8.0
 
@@ -194,6 +195,11 @@ def check(machine: str, path: str, out_png: str | None = None, recorded_at: floa
     x = audio.load(path)
     if len(x) < 2 * audio.SR:
         return _retake(meta["name"], quality.assess(x))
+    if len(x) < CHECK_MIN_S * audio.SR:   # shorter clips score as change against a 10-second baseline
+        q = quality.assess(x)
+        q = {**q, "ok": False, "fix": f"This recording is {len(x) / audio.SR:.1f} s. Tickover compares 10-second clips. "
+                                      "Record at least 10 seconds."}
+        return _retake(meta["name"], q)
     segs = audio.segments(x)
     Q = [_features(seg) for seg in segs]
     ql = quality.assess(x, np.stack([q["probs"] for q in Q]))

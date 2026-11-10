@@ -1,5 +1,10 @@
 """Keep one fresh recording on disk so Tickover can listen without anyone holding a phone.
 
+Prefer bridge/tickover_bridge.py. It serves a fresh clip over HTTP, needs no shared folder,
+runs on an old Android phone, a Raspberry Pi or any spare computer, and lets Hermes tell when
+the device stops recording. See bridge/README.md. This script remains for setups where Hermes
+can only read files.
+
 Run this next to the machine: a Raspberry Pi with a USB microphone, an old laptop, a mini PC.
 It records a short clip on a timer and replaces one file. Point a watch at that file:
 

@@ -1,5 +1,5 @@
 name: tickover
-version: "0.3.0"
+version: "0.4.0"
 description: >-
   Ears for Hermes. Hermes can switch things on; now it can hear whether they
   started. Hear any recording and say what it sounds like. Verify an action by

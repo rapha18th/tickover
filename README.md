@@ -42,6 +42,7 @@ On chat platforms, voice notes go to speech-to-text by default. For machine soun
 | I switched something. Did it happen? | `tickover_verify` | none |
 | Does this machine still sound like itself? | `tickover_enroll`, then `tickover_check` | 3 healthy recordings |
 | Keep an ear on it. | `tickover_watch`, `tickover_checkin` | a schedule |
+| Tell the repairer when it changes. | `tickover_watch` with `notify` | a chat id |
 | How are all my machines? | `tickover_fleet` | none |
 | Loaded or idle? Dry or wet? | `tickover_teach` (experimental) | 5 recordings per state |
 | Listen now. | `tickover_listen` | a microphone |
@@ -78,9 +79,47 @@ A first `drift` is unconfirmed. Tickover asks for a second recording before it t
 - **With a person.** Hermes asks for a recording on schedule. The next voice note is checked, and the reply carries the trend and a forecast.
 - **Unattended.** Give the watch a `source`: a camera stream, or a file that a recorder keeps fresh. Hermes checks it alone and speaks only when the sound changed. If the recorder stops writing, Hermes says the microphone needs attention.
 
-`examples/unattended/record_to_inbox.py` turns a Raspberry Pi with a USB microphone into that recorder. A phone works the same way: any recorder app that saves into a synced folder is a source.
+`bridge/tickover_bridge.py` turns an old Android phone, a Raspberry Pi with a USB microphone, or any spare computer into a listening device. One file, standard library only. It prints the URL to give Hermes:
+
+```
+You     Watch the borehole pump from http://192.168.1.20:8765/clip?key=CHOOSE_ONE every morning at 7.
+```
+
+`/clip` records on demand, so the same URL serves `tickover_verify` before and after. `/latest` serves a clip the device records on a timer. If the device stops recording or stops answering, Hermes says so. Setup for each device is in [bridge/README.md](bridge/README.md). A recorder app that saves into a synced folder also works as a source.
 
 `tickover_fleet` answers "how are my machines?" with one card.
+
+### Tell the person who fixes it
+
+Old machines change their sound before they fail. Tickover hears the change early. Name the repairer once and they hear it too, while the fix is still small.
+
+```
+You     Tell Tendai, our pump technician, on Telegram if the borehole pump changes.
+        His chat id is 123456789.
+Hermes  Done. Tendai hears only a confirmed change, with the card, once per change.
+        Healthy checks stay silent.
+```
+
+When two recordings in a row agree that the pump drifted, Tendai gets this on Telegram:
+
+```
+Hello Tendai.
+Tickover is listening to borehole pump (pump) at Mazowe farm for Chipo. Its sound has changed.
+It is 4.1 times further from its own healthy sound than its normal day-to-day variation.
+Under 2 is normal. 3 and above is a real change.
+The change is strongest in the 3.9-8 kHz band.
+Trend: +1.3 sigma per week over the last 5 check-ins.
+A second recording confirmed it.
+Please inspect it while the fix is still small. The diagnosis is yours.
+Reply to Chipo directly. This bot does not read replies.
+[the card]
+```
+
+`tickover_watch(machine, notify="telegram:123456789", notify_name="Tendai, pump technician")` sets it up. Any Hermes channel works: `whatsapp:+263771234567`, `email:tech@example.com`, `discord:<id>`. The same drift is sent once. A healthy check resets it. Only the owner, in their own chat, can change who is told.
+
+- **Telegram.** The repairer opens your Hermes bot and presses Start, or the bot cannot write to them. They get their chat id by sending any message to @userinfobot.
+- **WhatsApp.** Their number with the country code.
+- **Email.** Their address.
 
 ### Extend it without code
 
@@ -116,7 +155,7 @@ Limits, measured:
 - **Use one microphone in one place.** Two different recordings of the same pump in the same state read as a change 2 times in 20. For the fan, 7 in 20. Before and after must come from the same session.
 - **Verify does not find faults.** A normal pump against an abnormal pump reads as a change 2 or 3 times in 12. That job belongs to `tickover_check`.
 - **Leave room around the action.** A clip needs 9 seconds, with 4 seconds on each side of the change. A change closer to the edge returns `unclear`.
-- Verify hears that the sound changed. It does not prove what changed.
+- Verify hears that the sound changed. A person confirms what changed.
 
 ### Drift
 
