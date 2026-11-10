@@ -9,7 +9,7 @@ GET /health            JSON: name, backend, last level in dBFS, last clip age, u
 GET /                  a short page that lists these URLs
 ```
 
-On start it prints its URLs and a line to paste to Hermes. It needs `--key SECRET`, or `--open` to let anyone on the network listen. Both setup scripts make a key for you.
+On start it prints its URLs, the command that allows it in Hermes, and a line to paste to Hermes. It needs `--key SECRET`, or `--open` to let anyone on the network listen. Both setup scripts make a key for you.
 
 ## Old Android phone
 
@@ -65,6 +65,20 @@ Open the `/health` URL from the computer Hermes runs on. If it loads, you are do
 - macOS: click Allow when asked to accept incoming connections.
 - Linux with ufw: `sudo ufw allow 8765/tcp`.
 - Guest Wi-Fi often blocks devices from seeing each other. Use the main network.
+
+## Allow it once
+
+Hermes opens stream URLs only from devices you allow. Run this once on the computer Hermes runs on, with the address the bridge printed:
+
+```
+hermes config set plugins.entries.tickover.settings.allowed_sources "[192.168.1.20:8765]"
+```
+
+The command sets the whole list. `hermes config get plugins.entries.tickover.settings.allowed_sources` shows what is allowed now. To keep other devices, list them all in one command, comma separated: `"[192.168.1.20:8765, pi.local:8765]"`. Hermes reads the setting on every listen, so no restart is needed. If you skip this step, Hermes refuses the URL and tells you this command.
+
+Write the port. An entry without one allows only the usual ports: 80, 443, 554, 322 and the bridge's 8765.
+
+A Tailscale 100.x address or a `.local` name works the same way. Tickover connects to the name's LAN address and skips the link-local ones mDNS also returns. A public name must resolve to a public address.
 
 ## What to tell Hermes
 

@@ -14,6 +14,8 @@ Endpoints:
     GET /health           JSON status
     GET /                 a short page that lists these URLs
 
+Allow it once on the Hermes computer with the command it prints (hermes config set
+plugins.entries.tickover.settings.allowed_sources "[192.168.1.20:8765]").
 Then tell Hermes: "Watch the borehole pump from http://192.168.1.20:8765/clip every morning at 7."
 
 The bridge records 16 kHz mono. It serves only audio it records now, or the files given with
@@ -539,6 +541,8 @@ def index_page(bridge: Bridge, host: str | None) -> str:
     base = f"http://{html.escape(host or 'this-device:8765')}"
     k = "?key=..." if bridge.key else ""
     k2 = "&key=..." if bridge.key else ""
+    h, _, p = (host or "").rpartition(":")
+    allow = allow_command(h.strip("[]"), int(p)) if h and p.isdigit() else allow_command("THIS-DEVICE-IP", 8765)
     every = (f"Records {bridge.seconds} s every {bridge.every:g} s for /latest." if bridge.every
              else "No timer. Start with --every SECONDS to fill /latest.")
     return f"""<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
@@ -552,7 +556,11 @@ Backend: {html.escape(bridge.backend.name)}. {html.escape(every)}</p>
 <li><code>{base}/latest{k}</code> the newest timed clip</li>
 <li><code>{base}/health{k}</code> status as JSON</li>
 </ul>
-<p>Tell Hermes: <i>Watch the {html.escape(bridge.name)} from {base}/clip{k} every morning at 7.</i></p>
+<p>Allow this device once, on the computer Hermes runs on:
+<code>{html.escape(allow)}</code><br>
+This sets the whole list. <code>hermes config get plugins.entries.tickover.settings.allowed_sources</code> shows it.
+To keep other devices, put them all in the brackets, comma separated.</p>
+<p>Then tell Hermes: <i>Watch the {html.escape(bridge.name)} from {base}/clip{k} every morning at 7.</i></p>
 </body>"""
 
 
@@ -654,6 +662,12 @@ def build(a) -> tuple[Bridge, ThreadingHTTPServer]:
     return bridge, server
 
 
+def allow_command(host: str, port: int) -> str:
+    """The command that adds this device to Tickover's allowed_sources setting on the Hermes computer."""
+    entry = f"'[{host}]:{port}'" if ":" in host else f"{host}:{port}"
+    return f'hermes config set plugins.entries.tickover.settings.allowed_sources "[{entry}]"'
+
+
 def banner(a, bridge: Bridge, port: int) -> str:
     k = f"?key={a.key}" if a.key else ""
     hosts = lan_addresses() if a.host in ("0.0.0.0", "") else [a.host]
@@ -663,12 +677,18 @@ def banner(a, bridge: Bridge, port: int) -> str:
         lines.append(f"  http://{h}:{port}/clip{k}")
     try:
         host = socket.gethostname()
-        lines.append(f"  http://{host}.local:{port}/clip{k}  (if your network resolves .local names)")
+        lines.append(f"  http://{host}.local:{port}/clip{k}  (if your network resolves .local names; allow "
+                     f"{host.lower()}.local:{port} as well to use it)")
     except OSError:
         pass
     if a.every:
         lines.append(f"Recording {a.seconds} s every {a.every:g} s. Newest at http://{hosts[0]}:{port}/latest{k}")
-    lines += ["", "Tell Hermes:",
+    lines += ["", "Once, on the computer Hermes runs on, allow this device:",
+              f"  {allow_command(hosts[0], port)}",
+              "  This sets the whole list. To see what is allowed now:",
+              "  hermes config get plugins.entries.tickover.settings.allowed_sources",
+              "  To keep those devices, put them all in the brackets, comma separated.",
+              "", "Then tell Hermes:",
               f"  Watch the {a.name} from http://{hosts[0]}:{port}/clip{k} every morning at 7.", ""]
     if not a.key:
         lines.append("No --key set. Anyone on this network can listen. Add --key on shared networks.")

@@ -4,13 +4,21 @@ A source is a file path or a URL. ffmpeg handles every container (Telegram .oga/
 WhatsApp .opus, iPhone .m4a, video) and every live source (an RTSP camera, an HTTP audio
 stream, an ESP32 that serves a WAV). Without ffmpeg, soundfile reads WAV, FLAC and OGG, and
 a plain HTTP download covers devices that serve one of those.
+
+Every URL goes through sources.py first: the owner's allowed_sources list, a check of the resolved
+address, and a connection pinned to that address. ffmpeg never dials an http(s) URL itself: Tickover
+reads it and pipes the bytes in. RTSP goes through a relay that refuses redirects. Every ffmpeg run
+gets -protocol_whitelist, a list of container demuxers it may use (no playlists, no concat), and a
+minimal environment.
 """
 from __future__ import annotations
 
 import io
 import math
+import os
 import shutil
 import subprocess
+import threading
 import time
 
 import numpy as np
@@ -75,13 +83,12 @@ def bridge_latest(url: str) -> dict | None:
     The device timer is expected to write a clip every X-Tickover-Every seconds. A clip older than
     three periods (at least 15 minutes) means the device stopped recording.
     """
-    import urllib.request
+    from . import sources
     b = _bridge(url)
     if not b or b[0] != "latest":
         return None
     try:
-        req = urllib.request.Request(url, method="HEAD")
-        with urllib.request.urlopen(req, timeout=URL_TIMEOUT) as r:  # noqa: S310 - http(s) checked in _bridge
+        with sources.open_url(url, method="HEAD", timeout=URL_TIMEOUT) as r:   # allowlist, pinned address, checked redirects
             age = float(r.headers.get("X-Tickover-Age"))
             every = float(r.headers.get("X-Tickover-Every") or 0)
             at = r.headers.get("X-Tickover-Recorded-At")
@@ -158,19 +165,21 @@ def _resample(x: np.ndarray, sr: int) -> np.ndarray:
 
 def _http(url: str, seconds: float) -> np.ndarray:
     """No ffmpeg: download what an http(s) device serves and let soundfile read it."""
-    import urllib.request
     import soundfile as sf
+    from . import sources
     if not url.lower().startswith(("http://", "https://")):
         raise ValueError(f"cannot read {redact_url(url)}: install ffmpeg for RTSP and other live streams")
     buf = bytearray()
     try:
-        with urllib.request.urlopen(url, timeout=_wait(url)) as r:  # noqa: S310 - scheme checked above
+        with sources.open_url(url, timeout=_wait(url)) as r:   # allowlist, pinned address, checked redirects
             t0 = time.time()   # a bridge /clip answers only after it has recorded
             while len(buf) < URL_MAX_BYTES and time.time() - t0 < seconds + 20:
                 chunk = r.read(65536)
                 if not chunk:
                     break
                 buf += chunk
+    except sources.SourceRefused:
+        raise
     except Exception as exc:  # noqa: BLE001  refused, unreachable, timed out, or an HTTP error
         raise _device_error(url, exc) from exc
     if not buf:
@@ -182,38 +191,144 @@ def _http(url: str, seconds: float) -> np.ndarray:
     return _finite(_resample(x, sr)[: int(seconds * SR)], redact_url(url))
 
 
-def load(path: str, max_seconds: float = 600.0, url_seconds: float | None = None) -> np.ndarray:
-    """Decode a file (up to max_seconds) or capture a URL (url_seconds, default 30)."""
-    path = str(path).strip()
-    url = is_url(path)
-    secs = min(float(url_seconds or URL_SECONDS), max_seconds) if url else max_seconds
-    ff = ffmpeg()
-    if ff:
-        cmd = [ff, "-nostdin", "-v", "error"]
-        if url:
-            cmd += ["-rtsp_transport", "tcp"] if path.lower().startswith("rtsp") else ["-rw_timeout", str(int(_wait(path) * 1e6))]
-        cmd += ["-i", path, "-t", str(secs), "-vn", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
+# Demuxers ffmpeg may use on a file or a piped stream: audio and video containers only. No hls, dash,
+# concat, image2, sdp or rtp, so a crafted file cannot make ffmpeg open other files or hosts.
+SAFE_FORMATS = ("wav,w64,mp3,ogg,flac,aac,mov,matroska,webm,amr,amrnb,amrwb,aiff,caf,au,avi,asf,mpegts,mpeg,flv,"
+                "ac3,eac3,dts,wv,ape,tta,loas")
+WHITELIST_FILE = "file,pipe"
+WHITELIST_PIPE = "pipe"
+WHITELIST_RTSP = "rtsp,tcp"   # -rtsp_transport tcp, through the relay on 127.0.0.1 (sources.RtspGuard)
+
+
+def ffmpeg_env() -> dict:
+    """The environment ffmpeg runs with: enough to start on Linux, macOS and Windows, nothing else."""
+    keep = ("PATH", "HOME", "LANG", "LC_ALL", "TMPDIR")
+    if os.name == "nt":   # Windows needs SYSTEMROOT to start a process; TEMP for scratch files
+        keep += ("USERPROFILE", "SYSTEMROOT", "WINDIR", "TEMP", "TMP")
+    return {k: os.environ[k] for k in keep if os.environ.get(k)}
+
+
+def _decode_args(secs: float) -> list[str]:
+    return ["-t", str(secs), "-vn", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
+
+
+def _ffmpeg_file(ff: str, path: str, secs: float) -> subprocess.CompletedProcess:
+    cmd = [ff, "-nostdin", "-v", "error", "-protocol_whitelist", WHITELIST_FILE, "-format_whitelist", SAFE_FORMATS,
+           "-i", path, *_decode_args(secs)]
+    return subprocess.run(cmd, capture_output=True, check=False, timeout=120, stdin=subprocess.DEVNULL, env=ffmpeg_env())
+
+
+def _ffmpeg_pipe(ff: str, resp, secs: float, deadline: float) -> tuple[int, bytes, bytes]:
+    """Feed an open http(s) response into ffmpeg on stdin. ffmpeg itself opens nothing but its pipes."""
+    cmd = [ff, "-v", "error", "-protocol_whitelist", WHITELIST_PIPE, "-format_whitelist", SAFE_FORMATS,
+           "-i", "pipe:0", *_decode_args(secs)]
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=ffmpeg_env())
+    out, err = [], []
+
+    def feed():
+        sent = 0
         try:
-            out = subprocess.run(cmd, capture_output=True, check=False, timeout=secs + _wait(path) + 45 if url else 120)
+            while sent < URL_MAX_BYTES and time.time() < deadline:
+                chunk = resp.read(65536)
+                if not chunk:
+                    break
+                proc.stdin.write(chunk)
+                sent += len(chunk)
+        except (OSError, ValueError):
+            pass   # ffmpeg has enough and closed its end, or the device stopped
+        finally:
+            try:
+                proc.stdin.close()
+            except OSError:
+                pass
+
+    threads = [threading.Thread(target=feed, daemon=True),
+               threading.Thread(target=lambda: out.append(proc.stdout.read()), daemon=True),
+               threading.Thread(target=lambda: err.append(proc.stderr.read()), daemon=True)]
+    for t in threads:
+        t.start()
+    try:
+        proc.wait(timeout=max(deadline - time.time(), 1.0) + 15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+    finally:
+        resp.close()
+    for t in threads:
+        t.join(timeout=5)
+    return proc.returncode, b"".join(out), b"".join(err)
+
+
+_UNREACHABLE = ("connection refused", "timed out", "no route", "unreachable", "failed to resolve",
+                "name or service not known", "connection reset", "end of file")
+
+
+def _load_url(ff: str | None, url: str, secs: float) -> np.ndarray:
+    from . import sources
+    try:
+        target = sources.check(url)
+    except LookupError as exc:
+        raise ValueError(f"The listening device at {redact_url(url)} is not answering ({exc}).") from exc
+    if not ff:
+        return _http(url, secs)
+    if target.scheme in ("http", "https"):
+        try:
+            resp = sources.open_url(url, timeout=_wait(url))
+        except sources.SourceRefused:
+            raise
+        except Exception as exc:  # noqa: BLE001  refused, unreachable, timed out, or an HTTP error
+            raise _device_error(url, exc) from exc
+        code, out, err = _ffmpeg_pipe(ff, resp, secs, time.time() + secs + _wait(url) + 20)
+        if code == 0 and out:
+            return _finite(np.frombuffer(out, dtype=np.float32).copy(), redact_url(url))
+        msg = err.decode(errors="replace").strip()[-300:]
+        raise ValueError(f"cannot decode {redact_url(url)}: {msg or 'no audio'}")
+    guard = sources.RtspGuard(target, timeout=URL_TIMEOUT)
+    try:
+        cmd = [ff, "-nostdin", "-v", "error", "-protocol_whitelist", WHITELIST_RTSP, "-format_whitelist", "rtsp",
+               "-rtsp_transport", "tcp", "-i", guard.local_url(), *_decode_args(secs)]
+        try:
+            out = subprocess.run(cmd, capture_output=True, check=False, timeout=secs + _wait(url) + 45,
+                                 stdin=subprocess.DEVNULL, env=ffmpeg_env())
         except subprocess.TimeoutExpired as exc:
-            if url:
-                raise ValueError(f"The listening device at {redact_url(path)} is not answering.") from exc
+            raise ValueError(f"The listening device at {redact_url(url)} is not answering.") from exc
+    finally:
+        guard.close()
+    if guard.refused:
+        raise sources.SourceRefused(f"{redact_url(url)}: {guard.refused}. Tickover does not follow camera redirects. "
+                                    "Give the camera's final address.")
+    if out.returncode == 0 and out.stdout:
+        return _finite(np.frombuffer(out.stdout, dtype=np.float32).copy(), redact_url(url))
+    err = out.stderr.decode(errors="replace")
+    if any(s in err.lower() for s in _UNREACHABLE):
+        raise ValueError(f"The listening device at {redact_url(url)} is not answering.")
+    err = err.strip().replace(guard.local_url(), redact_url(url))[-300:]
+    raise ValueError(f"cannot read {redact_url(url)}: {err or 'no audio'}")
+
+
+def load(path: str, max_seconds: float = 600.0, url_seconds: float | None = None) -> np.ndarray:
+    """Decode a file (up to max_seconds) or capture an allowed URL (url_seconds, default 30)."""
+    path = str(path).strip()
+    ff = ffmpeg()
+    if is_url(path):
+        return _load_url(ff, path, min(float(url_seconds or URL_SECONDS), max_seconds))
+    from . import sources
+    sources.local_path(path)   # a Windows network path would dial out before ffmpeg even starts
+    ff_err = ""
+    if ff:
+        try:
+            out = _ffmpeg_file(ff, path, max_seconds)
+        except subprocess.TimeoutExpired as exc:
             raise ValueError(f"timed out reading {path}") from exc
         if out.returncode == 0 and out.stdout:
-            return _finite(np.frombuffer(out.stdout, dtype=np.float32).copy(), redact_url(path))
-        err = out.stderr.decode(errors="replace").lower()
-        if url and any(s in err for s in ("connection refused", "timed out", "no route", "unreachable",
-                                          "failed to resolve", "name or service not known", "connection reset")):
-            raise ValueError(f"The listening device at {redact_url(path)} is not answering.")
-        if url and not path.lower().startswith("http"):
-            err = out.stderr.decode(errors="replace").strip().replace(path, redact_url(path))[-300:]
-            raise ValueError(f"cannot read {redact_url(path)}: {err or 'no audio'}")
-    if url:
-        return _http(path, secs)
+            return _finite(np.frombuffer(out.stdout, dtype=np.float32).copy(), path)
+        ff_err = out.stderr.decode(errors="replace").strip()[-200:]
     import soundfile as sf
     try:
         x, sr = sf.read(path, dtype="float32", always_2d=True)
     except Exception as exc:  # noqa: BLE001
+        if ff:
+            raise ValueError(f"cannot decode {path}: it is not an audio or video file Tickover reads ({ff_err or exc})") from exc
         raise ValueError(f"cannot decode {path}: install ffmpeg for M4A, MP3 or video ({exc})") from exc
     return _finite(_resample(x, sr)[: int(max_seconds * SR)], path)
 

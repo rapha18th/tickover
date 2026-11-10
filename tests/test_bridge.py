@@ -59,16 +59,18 @@ def _start(tmp_path, *extra):
 
 
 @pytest.fixture
-def bridge(tmp_path):
+def bridge(tmp_path, allow):
     proc, base = _start(tmp_path, "--every", "12", "--seconds", "10")
+    allow(base.split("//", 1)[1])   # the owner allows the device once: 127.0.0.1:<port>
     yield base
     proc.kill()
     proc.wait()
 
 
 @pytest.fixture
-def keyed(tmp_path):
+def keyed(tmp_path, allow):
     proc, base = _start(tmp_path, "--key", "s3cret")
+    allow(base.split("//", 1)[1])
     yield base
     proc.kill()
     proc.wait()
@@ -154,7 +156,7 @@ def test_open_network_needs_key_or_open(tmp_path):
     assert r.returncode == 2 and "--open" in r.stderr
 
 
-def test_silence_is_refused(tmp_path):
+def test_silence_is_refused(tmp_path, allow):
     folder = tmp_path / "quiet"
     folder.mkdir()
     with wave.open(str(folder / "z.wav"), "wb") as w:
@@ -176,6 +178,7 @@ def test_silence_is_refused(tmp_path):
             urllib.request.urlopen(f"http://127.0.0.1:{port}/clip?seconds=3", timeout=30)
         assert e.value.code == 503 and "silence" in json.loads(e.value.read())["error"]
         from tickover_core import audio
+        allow(f"127.0.0.1:{port}")
         with pytest.raises(ValueError, match="silence"):
             audio.load(f"http://127.0.0.1:{port}/clip?seconds=3&key=SECRET")
     finally:
@@ -213,15 +216,18 @@ def test_audio_load_without_ffmpeg(bridge, monkeypatch):
     assert len(x) == 4 * SR
 
 
-def test_device_not_answering():
+def test_device_not_answering(allow):
     from tickover_core import audio
-    url = f"http://127.0.0.1:{_free_port()}/clip?seconds=3"
+    port = _free_port()
+    allow(f"127.0.0.1:{port}")
+    url = f"http://127.0.0.1:{port}/clip?seconds=3"
     with pytest.raises(ValueError, match="is not answering"):
         audio.load(url)
 
 
-def test_stale_bridge_is_reported(monkeypatch):
+def test_stale_bridge_is_reported(monkeypatch, allow):
     from tickover_core import audio, tools
+    allow("127.0.0.1:9")
     monkeypatch.setattr(audio, "bridge_latest", lambda u: {"age_s": 7200.0, "every_s": 600.0, "limit_s": 1800.0,
                                                            "stale": True, "recorded_at": 1.0})
     r = json.loads(tools.check_tool({"machine": "bridge pump", "path": "http://127.0.0.1:9/latest"}))

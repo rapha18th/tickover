@@ -79,7 +79,13 @@ A first `drift` is unconfirmed. Tickover asks for a second recording before it t
 - **With a person.** Hermes asks for a recording on schedule. The next voice note is checked, and the reply carries the trend and a forecast.
 - **Unattended.** Give the watch a `source`: a camera stream, or a file that a recorder keeps fresh. Hermes checks it alone and speaks only when the sound changed. If the recorder stops writing, Hermes says the microphone needs attention.
 
-`bridge/tickover_bridge.py` turns an old Android phone, a Raspberry Pi with a USB microphone, or any spare computer into a listening device. One file, standard library only. It prints the URL to give Hermes:
+`bridge/tickover_bridge.py` turns an old Android phone, a Raspberry Pi with a USB microphone, or any spare computer into a listening device. One file, standard library only. It prints two things. First the command that allows the device, which you run once on the computer Hermes runs on:
+
+```
+hermes config set plugins.entries.tickover.settings.allowed_sources "[192.168.1.20:8765]"
+```
+
+Then the line to give Hermes:
 
 ```
 You     Watch the borehole pump from http://192.168.1.20:8765/clip?key=CHOOSE_ONE every morning at 7.
@@ -117,6 +123,8 @@ Reply to Chipo directly. This bot does not read replies.
 
 `tickover_watch(machine, notify="telegram:123456789", notify_name="Tendai, pump technician")` sets it up. Any Hermes channel works: `whatsapp:+263771234567`, `email:tech@example.com`, `discord:<id>`. The same drift is sent once. A healthy check resets it. Only the owner, in their own chat, can change who is told.
 
+Tickover creates no cron job from inside a scheduled run unless `cron.allow_agent_scheduling` is true. With that gate off, an unattended watch with a repairer delivers to both of you. It speaks once for a confirmed change and once for a microphone or recorder that needs attention, and stays silent otherwise. Each job carries its own relay token, so one machine's job cannot speak for another. With the gate on, you hear every finding and a one-shot job carries the alert to the repairer.
+
 - **Telegram.** The repairer opens your Hermes bot and presses Start, or the bot cannot write to them. They get their chat id by sending any message to @userinfobot.
 - **WhatsApp.** Their number with the country code.
 - **Email.** Their address.
@@ -127,7 +135,7 @@ Hermes is an agent, so the plugin grows by conversation.
 
 - A new machine: enroll it.
 - A new question: teach it.
-- A new source: any path or stream URL.
+- A new source: any path, or a stream URL from a device you allowed.
 - A new reaction: a cron job or a skill that reads `verdict` and `trend.escalate` and calls any other tool.
 
 ## Benchmarks
@@ -232,6 +240,8 @@ Tickover detects change. It names the band that moved, and Hermes suggests where
 - First use downloads CED-base (87 MB) from Hugging Face, `mispeech/ced-base` at a pinned commit, and checks its sha256. Every other step runs offline.
 - `tickover_core/models/mn10_frames.onnx` (12 MB) ships with the plugin, pinned by sha256. `scripts/export_mn10.py` rebuilds it.
 - Audio stays on the machine. The microphone opens only during `tickover_listen` and a microphone `tickover_verify`.
+- Stream URLs open only from hosts you list in the plugin setting `allowed_sources` (empty by default). A local name such as `pi.local` or an IP address may be on your network. Any other name must resolve to public addresses. Tickover connects to the address it checked and checks every redirect again. ffmpeg runs with a protocol whitelist, a list of container formats (no playlists), and a minimal environment. An entry without a port allows the usual ports only (80, 443, 554, 322 and the bridge's 8765). A cloud metadata or link-local address is refused with no command to allow it. On Windows, a network path (`\\host\share`) is refused before any file call. Outside Hermes, `TICKOVER_ALLOWED_SOURCES` (a comma list) does the same for the CLI and tests.
+- Repeating schedules run at most every 15 minutes. Names, places and tips reach a cron prompt as one line of at most 120 characters, without quotes.
 - Baselines and history live in Hermes's plugin data folder (`plugin-data/tickover`).
 
 ## Credits

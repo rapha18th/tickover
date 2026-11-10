@@ -39,8 +39,11 @@ def test_parse_notify():
             agent.parse_notify(bad)
 
 
-def test_watch_listen_tells_owner_only_and_keeps_fields(ctx):
+def test_watch_listen_with_repairer_shares_the_job_when_the_gate_is_off(ctx, allow, dns):
+    """Default Hermes config: a cron run may not create the one-shot relay, so the listening job reaches both."""
     from tickover_core import store, tools
+    allow("cam.local")
+    dns({"cam.local": ["192.168.1.30"]})
     m = "alert pump"
     try:
         w = json.loads(tools.watch_tool({"machine": m, "kind": "pump", "location": "farm, Gweru", "schedule": "every 6 hours",
@@ -48,11 +51,13 @@ def test_watch_listen_tells_owner_only_and_keeps_fields(ctx):
                                          "notify_name": "Tendai, pump technician", "tip": "phone on the flange"}))
         assert w["ok"] and w["notify"]["to"] == ["telegram:555", "whatsapp:+263771234567"]
         args = ctx.dispatched[-1][1]
-        assert "deliver" not in args   # the repairer hears through the relay only, never the listening job
+        assert args["deliver"] == "origin,telegram:555,whatsapp:+263771234567" and args["failure_deliver"] == "origin"
         p = args["prompt"]
-        assert "farm, Gweru" in p and "notify.say" in p and "Tendai" not in p
-        assert "[SILENT]" in p and "second check agrees" in p and "same_recording" in p and "Do not name a fault" in p
+        assert "farm, Gweru" in p and "notify.message" in p and "notify.quiet" in p and "Tendai" not in p
+        assert "healthy, watch or same_recording" in p and "[SILENT]" in p and "Do not name a fault" in p
+        assert "to the owner and to Tendai" in w["notify"]["how"] and "allow_agent_scheduling" in w["notify"]["how"]
         prof = store.profile(m)
+        assert prof["relay"] == "job" and prof["relay_to"] == "telegram:555,whatsapp:+263771234567"
         assert prof["notify"] == "telegram:555,whatsapp:+263771234567" and prof["notify_name"] == "Tendai, pump technician"
         # a later watch that leaves fields out keeps them: notify, schedule, source, location and tip
         w = json.loads(tools.watch_tool({"machine": m, "notify": "telegram:555, whatsapp:+263771234567"}))
@@ -60,12 +65,31 @@ def test_watch_listen_tells_owner_only_and_keeps_fields(ctx):
         assert w["profile"]["location"] == "farm, Gweru" and w["profile"]["tip"] == "phone on the flange"
         assert w["profile"]["notify_name"] == "Tendai, pump technician"
         assert "farm, Gweru" in ctx.dispatched[-1][1]["prompt"]
-        # a new target without a name drops the old name
+        # a new target without a name drops the old name, and the job follows the new target
         w = json.loads(tools.watch_tool({"machine": m, "notify": "telegram:777"}))
-        assert w["profile"]["notify_name"] == ""
-        # clearing it
+        assert w["profile"]["notify_name"] == "" and ctx.dispatched[-1][1]["deliver"] == "origin,telegram:777"
+        # clearing it: the job reaches the owner only again
         w = json.loads(tools.watch_tool({"machine": m, "notify": ""}))
         assert "notify" not in w and w["profile"]["notify"] == "" and w["profile"]["notify_name"] == ""
+        assert "deliver" not in ctx.dispatched[-1][1] and w["profile"]["relay"] == ""
+    finally:
+        store.forget(m)
+
+
+def test_watch_listen_tells_owner_only_when_agent_scheduling_is_on(ctx, allow, dns, monkeypatch):
+    from tickover_core import agent, store, tools
+    allow("cam.local")
+    dns({"cam.local": ["192.168.1.30"]})
+    monkeypatch.setattr(agent, "_agent_scheduling_allowed", lambda: True)
+    m = "alert pump gated"
+    try:
+        w = json.loads(tools.watch_tool({"machine": m, "kind": "pump", "schedule": "every 6 hours",
+                                         "source": "rtsp://cam.local/pump", "notify": "telegram:555"}))
+        args = ctx.dispatched[-1][1]
+        assert w["ok"] and "deliver" not in args   # the repairer hears through the one-shot relay only
+        p = args["prompt"]
+        assert "notify.say" in p and "second check agrees" in p and "same_recording" in p
+        assert store.profile(m)["relay"] == ""
     finally:
         store.forget(m)
 
@@ -82,8 +106,10 @@ def test_watch_rejects_bad_names(ctx):
         store.forget(m)
 
 
-def test_only_owner_changes_notify(ctx, monkeypatch):
+def test_only_owner_changes_notify(ctx, monkeypatch, allow, dns):
     from tickover_core import agent, store, tools
+    allow("x")
+    dns({"x": ["192.168.1.40"]})
     m = "alert owned"
     env = {"HERMES_SESSION_PLATFORM": "telegram", "HERMES_SESSION_CHAT_ID": "100", "HERMES_SESSION_USER_NAME": "Chipo"}
     monkeypatch.setattr(agent, "_session", lambda k: env.get(k))
@@ -100,6 +126,18 @@ def test_only_owner_changes_notify(ctx, monkeypatch):
         assert r["ok"] is False
         prof = store.profile(m)
         assert prof["notify"] == "telegram:9" and prof["owner"] == "telegram:100"
+        env.clear(); env.update({"HERMES_CRON_SESSION": "1", "HERMES_SESSION_SOURCE": "desktop"})
+        r = json.loads(tools.watch_tool({"machine": m, "notify": "telegram:666"}))
+        assert r["ok"] is False and "scheduled run" in r["error"]   # a cron run touches no job, and is never local
+        env.clear(); env["HERMES_SESSION_SOURCE"] = "desktop"
+        r = json.loads(tools.watch_tool({"machine": m, "notify": "telegram:7"}))
+        assert r["ok"], r                       # Hermes Desktop on the owner's computer may change it
+        prof = store.profile(m)
+        assert prof["notify"] == "telegram:7" and prof["owner"] == "telegram:100"
+        env.clear(); env.update({"HERMES_SESSION_PLATFORM": "local", "HERMES_SESSION_CHAT_ID": "desk-1"})
+        r = json.loads(tools.watch_tool({"machine": m, "notify": "telegram:8"}))
+        assert r["ok"], r                       # Desktop through the gateway: platform "local"
+        assert store.profile(m)["owner"] == "telegram:100"
     finally:
         store.forget(m)
 
@@ -150,7 +188,7 @@ def test_relay_after_owner_checkin(ctx):
         for part in ("Hello Rudo.", "alert compressor (compressor) at workshop", "4.2 times further", "3.9-8 kHz",
                      "+1.5 sigma per week", "2 check-ins in a row", "second recording confirmed", "MEDIA:/tmp/card.png"):
             assert part in msg, part
-        assert msg in args["prompt"] and "—" not in msg and "does not read replies" in msg
+        assert msg in args["prompt"] and "\u2014" not in msg and "does not read replies" in msg
         # the same drift again stays quiet; a much larger one is news; a healthy check clears it
         before = len(ctx.dispatched)
         n = agent.notify_for(m, _confirmed(m))

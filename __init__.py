@@ -1,6 +1,6 @@
 """Tickover: ears for Hermes. Hear a sound, verify an action, catch a machine drifting.
 
-Registers the tickover_* tools, two hooks that route chat voice notes, and the tickover skill. numpy and onnxruntime load
+Registers the tickover_* tools, three hooks that route chat voice notes (the note is written only after the gateway admits the sender), and the tickover skill. numpy and onnxruntime load
 when a tool runs, never at registration.
 """
 

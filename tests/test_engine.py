@@ -61,7 +61,9 @@ def test_too_short(tmp_path):
         engine.enroll("blip", [str(p)])
 
 
-def test_register_with_stub_context():
+def test_register_with_stub_context(allow, dns):
+    allow("cam.local")
+    dns({"cam.local": ["192.168.1.30"]})
     import importlib.util
     root = os.path.join(os.path.dirname(__file__), os.pardir)
     spec = importlib.util.spec_from_file_location("earshot_plugin", os.path.join(root, "__init__.py"))
@@ -91,7 +93,7 @@ def test_register_with_stub_context():
     assert set(ctx.tools) == {"tickover_hear", "tickover_verify", "tickover_enroll", "tickover_check", "tickover_teach", "tickover_watch",
                               "tickover_checkin", "tickover_fleet", "tickover_listen", "tickover_selftest"}
     assert "tickover" in ctx.skills
-    assert set(ctx.hooks) == {"pre_gateway_dispatch", "pre_llm_call"}
+    assert set(ctx.hooks) == {"pre_gateway_dispatch", "post_gateway_admission", "pre_llm_call"}
     w = json.loads(ctx.tools["tickover_watch"]({"machine": "borehole pump", "kind": "pump", "location": "farm"}))
     assert w["ok"] and ctx.dispatched[0][0] == "cronjob_manage" and ctx.dispatched[0][1]["action"] == "create"
     assert w["profile"]["cron_job"] == "job123"
@@ -126,14 +128,27 @@ def test_trend_forecast():
     assert late["overdue_days"] == 5.0
 
 
+def _admit(ev):
+    """What the gateway does for an admitted message: pre_gateway_dispatch, then post_gateway_admission."""
+    from tickover_core import agent
+    assert agent.on_inbound(event=ev) is None
+    src = ev.source
+    return agent.on_admitted(session_key="s", platform=src.platform.value,
+                             source={"platform": src.platform.value, "chat_id": src.chat_id, "user_id": src.user_id},
+                             message_id=getattr(ev, "message_id", None), text="")
+
+
 def test_voice_note_routing_hooks(tmp_path):
     from types import SimpleNamespace
     from tickover_core import agent, store
     store.save_profile("genset", kind="genset", owner="telegram:42")
     agent.checkin("genset")
-    ev = SimpleNamespace(media_urls=[str(tmp_path / "v.ogg")], media_types=["audio/ogg"],
+    ev = SimpleNamespace(media_urls=[str(tmp_path / "v.ogg")], media_types=["audio/ogg"], message_id="m1",
                          source=SimpleNamespace(platform=SimpleNamespace(value="telegram"), chat_id="42", user_id="42"))
     assert agent.on_inbound(event=ev) is None
+    assert agent.on_turn(platform="telegram", sender_id="42") is None   # not admitted yet: nothing on disk
+    assert agent.on_admitted(session_key="s", platform="telegram", source={"platform": "telegram", "chat_id": "42",
+                                                                            "user_id": "42"}, message_id="m1") is None
     ctx = agent.on_turn(platform="telegram", sender_id="42")
     assert "genset" in ctx["context"] and "v.ogg" in ctx["context"]
     assert agent.on_turn(platform="telegram", sender_id="42") is None   # used once
@@ -315,8 +330,11 @@ def test_forget(tmp_path):
     assert store.history("gone") == [] and store.forget("gone") is False
 
 
-def test_urls_pass_through():
-    from tickover_core import tools
+def test_urls_pass_through(allow):
+    from tickover_core import sources, tools
+    with pytest.raises(sources.SourceRefused, match="not an allowed source"):
+        tools._paths({"path": "rtsp://cam.local/stream"})
+    allow("cam.local", "example.org")
     assert tools._paths({"path": "rtsp://cam.local/stream"}) == ["rtsp://cam.local/stream"]
     assert tools._paths({"paths": ["https://example.org/a.wav"]}) == ["https://example.org/a.wav"]
     with pytest.raises(ValueError):
@@ -333,16 +351,16 @@ def test_unasked_machine_sound_is_offered_and_speech_is_left_alone(tmp_path, mon
     from tickover_core import agent, selftest
     p = tmp_path / "fan.wav"
     sf.write(p, selftest.fan(seed=5), 16000)
-    agent.on_inbound(event=_event(p, "900"))
+    _admit(_event(p, "900"))
     ctx = agent.on_turn(platform="telegram", sender_id="900")
     assert "tickover_hear" in ctx["context"] and str(p) in ctx["context"] and "no speech" in ctx["context"]
     # a spoken voice message: the screen says speech, so Tickover says nothing
     monkeypatch.setattr(agent, "_screen", lambda path: (0.9, ["Speech"]))
-    agent.on_inbound(event=_event(p, "901"))
+    _admit(_event(p, "901"))
     assert agent.on_turn(platform="telegram", sender_id="901") is None
     # a file that cannot be read still reaches the agent
     monkeypatch.setattr(agent, "_screen", lambda path: None)
-    agent.on_inbound(event=_event(tmp_path / "missing.ogg", "902"))
+    _admit(_event(tmp_path / "missing.ogg", "902"))
     assert "tickover_hear" in agent.on_turn(platform="telegram", sender_id="902")["context"]
 
 

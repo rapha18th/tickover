@@ -35,9 +35,20 @@ provides_tools:
   - tickover_selftest
 provides_hooks:
   - pre_gateway_dispatch
+  - post_gateway_admission
   - pre_llm_call
 provides_middleware: []
 requires_env: []
+# Read with ctx.get_config("allowed_sources") from plugins.entries.tickover.settings.
+config_schema:
+  allowed_sources:
+    type: list
+    default: []
+    label: Allowed listening devices
+    description: >-
+      Hosts Tickover may open stream URLs from, as host or host:port, for example 192.168.1.20:8765 or
+      pi.local. Empty allows no URLs; files on this computer always work. A local name or an IP address
+      may be on your network. Any other name must resolve to public addresses.
 # Kept in step with pyproject.toml. pyproject.toml is what Hermes installs.
 python_dependencies:
   - "numpy>=1.26,<3"

@@ -59,6 +59,8 @@ echo "Wrote $BOOT/tickover-bridge. The bridge starts again after a reboot."
 termux-wake-lock
 
 echo "Starting the bridge. Leave Termux open in the background. Ctrl+C twice stops it."
+echo "It prints a 'hermes config set' command. Run that once on the computer Hermes runs on to allow this phone,"
+echo "then give Hermes the Watch line it prints."
 while true; do
   python "$HERE/tickover_bridge.py" --backend termux "$@" || true
   echo "The bridge stopped. Starting it again in 5 s."

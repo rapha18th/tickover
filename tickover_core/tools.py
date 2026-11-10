@@ -44,8 +44,10 @@ def _expand(x: str) -> list[str]:
     import glob
     x = str(x).strip().strip('"')
     if _is_url(x):
+        from . import sources
+        sources.check(x, resolve_host=False)   # an unlisted host is refused here; audio.load checks the address too
         return [x]
-    x = os.path.expanduser(x)
+    x = _local(os.path.expanduser(_local(x)))   # before any file call: a Windows network path dials out when touched
     if os.path.isfile(x):  # a real file wins, even with [ or ? in its name
         return [x]
     if any(c in x for c in "*?["):
@@ -53,6 +55,11 @@ def _expand(x: str) -> list[str]:
     if os.path.isdir(x):
         return sorted(os.path.join(x, f) for f in os.listdir(x) if f.lower().endswith(AUDIO_EXT))
     return [x]
+
+
+def _local(x) -> str:
+    from . import sources
+    return sources.local_path(x)
 
 
 def _paths(a) -> list[str]:
@@ -162,20 +169,43 @@ def _unattended(m: str, path: str):
     return None, mtime
 
 
+DEVICE_REPORTED_AFTER = 600   # seconds: a fault first seen in an earlier run was already reported by that run
+
+
+def _device_fault(m: str, r: dict) -> dict:
+    """Inside a cron run, mark a stale recorder or a microphone that needs a retake as already reported when an
+    earlier run saw it. The listening job then stays silent, so the repairer hears about a fault once."""
+    from . import agent, store
+    if r.get("verdict") not in ("stale", "retake") or not agent._in_cron():
+        return r
+    since = float(store.profile(m).get("device_fault_at") or 0)
+    if not since:
+        store.save_profile(m, device_fault_at=time.time())
+    r["already_reported"] = bool(since) and time.time() - since > DEVICE_REPORTED_AFTER
+    return r
+
+
+def _device_ok(m: str) -> None:
+    from . import store
+    if store.profile(m).get("device_fault_at"):
+        store.save_profile(m, device_fault_at=0)
+
+
 def _check(m: str, path: str, a: dict) -> dict:
     from . import agent, engine
     early, mtime = _unattended(m, path)
     if early:
-        return early
+        return _device_fault(m, early)
     r = engine.check(m, path, recorded_at=_when(a.get("recorded_at")), ignore_quality=bool(a.get("ignore_quality", False)))
     if r.get("verdict") in ("retake", "insufficient"):
-        return r   # nothing was heard about the machine: the request for a recording stays open
+        return _device_fault(m, r)   # nothing was heard about the machine: the request for a recording stays open
+    _device_ok(m)
     agent.resolve(m)
     if mtime is not None:
         from . import store
         store.save_profile(m, source_mtime=mtime)
     if r.get("verdict") == "drift" and r.get("confirmed"):
-        r["notify"] = agent.notify_for(m, r)   # one path in both modes: a one-shot relay, once per change
+        r["notify"] = agent.notify_for(m, r, a.get("relay"))   # a one-shot relay, or this machine's own job
     elif r.get("verdict") == "healthy":
         agent.notify_clear(m)
     if r.get("verdict") == "healthy" and a.get("add_to_baseline"):
@@ -206,7 +236,7 @@ def verify_tool(a):
         return verify.before(src, secs, a.get("label"), a.get("device"))
     if step == "after":
         bp = a.get("before_path")
-        if bp and not os.path.exists(bp):
+        if bp and not os.path.exists(_local(bp)):
             raise ValueError(f"file not found: {bp}")
         return _show(verify.after(src, secs, a.get("expect", "change"), a.get("label"), a.get("machine"), bp, a.get("device")))
     if step == "clip":
@@ -241,13 +271,23 @@ def watch_tool(a):
     m = str(a["machine"])
     prof = store.profile(m)   # a field left out keeps its saved value, so adding a repairer keeps the routine
     src = a["source"] if "source" in a else prof.get("source")
-    if src and not _is_url(src):
-        src = os.path.abspath(os.path.expanduser(str(src)))
-    return agent.watch(m, a.get("kind") or prof.get("kind") or "other",
-                       a["location"] if "location" in a else prof.get("location"),
-                       a["schedule"] if "schedule" in a else prof.get("schedule", "every monday 9am"),
-                       a["tip"] if "tip" in a else prof.get("tip"), src or None, a.get("notify"), a.get("notify_name"),
-                       a.get("owner_name"))
+    note = None
+    if src and _is_url(src):
+        from . import sources
+        try:
+            sources.check(str(src).strip())   # the owner learns at once, before the first scheduled listen
+        except LookupError as exc:
+            note = f"Could not reach {sources._redact(src)} just now ({exc}). The job will try at its scheduled time."
+    elif src:
+        src = os.path.abspath(os.path.expanduser(_local(src)))
+    out = agent.watch(m, a.get("kind") or prof.get("kind") or "other",
+                      a["location"] if "location" in a else prof.get("location"),
+                      a["schedule"] if "schedule" in a else prof.get("schedule", "every monday 9am"),
+                      a["tip"] if "tip" in a else prof.get("tip"), src or None, a.get("notify"), a.get("notify_name"),
+                      a.get("owner_name"))
+    if note:
+        out["source_note"] = note
+    return out
 
 
 @_guard
@@ -366,6 +406,7 @@ def tool_specs() -> list[dict]:
             {"machine": MACHINE, "path": {"type": "string", "description": "The recording to check: a file path, a folder or glob, or a stream URL."},
              "recorded_at": {"type": "string", "description": "Optional ISO date the recording was made, when it is not today."},
              "add_to_baseline": {"type": "boolean", "description": "If the owner confirms the machine is fine and the verdict is healthy, add this recording to the baseline."},
+             "relay": {"type": "string", "description": "Only a scheduled listening job passes this, copied from its own prompt. Leave it out otherwise."},
              "ignore_quality": IGNORE_Q},
             ["machine", "path"])},
         {"name": "tickover_teach", "handler": teach_tool, "emoji": "🧠", "schema": _schema(
@@ -441,5 +482,6 @@ def register_tools(ctx) -> None:
         ctx.register_tool(name=t["name"], toolset="tickover", schema=t["schema"], handler=t["handler"],
                           description=t["schema"]["description"], emoji=t["emoji"])
     if hasattr(ctx, "register_hook"):
-        ctx.register_hook("pre_gateway_dispatch", agent.on_inbound)
+        ctx.register_hook("pre_gateway_dispatch", agent.on_inbound)      # holds audio in memory, before auth
+        ctx.register_hook("post_gateway_admission", agent.on_admitted)  # writes the note once the sender is admitted
         ctx.register_hook("pre_llm_call", agent.on_turn)

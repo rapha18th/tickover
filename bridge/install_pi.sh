@@ -125,7 +125,13 @@ echo "  Clip now:  http://$IP:$PORT/clip$Q"
 [ -n "$EVERY" ] && echo "  Newest:    http://$IP:$PORT/latest$Q"
 echo "  Health:    http://$IP:$PORT/health$Q"
 echo
-echo "Tell Hermes:"
+echo "Once, on the computer Hermes runs on, allow this device:"
+echo "  hermes config set plugins.entries.tickover.settings.allowed_sources \"[$IP:$PORT]\""
+echo "  This sets the whole list. To see what is allowed now:"
+echo "  hermes config get plugins.entries.tickover.settings.allowed_sources"
+echo "  To keep those devices, put them all in the brackets, comma separated."
+echo
+echo "Then tell Hermes:"
 if [ -n "$EVERY" ]; then
   echo "  Watch the ${NAME:-machine} from http://$IP:$PORT/latest$Q every morning at 7."
 else
